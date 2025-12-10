@@ -1,5 +1,5 @@
 ---
-title: "OAuth 2.0 Token Exchange Target Service Discovery""
+title: "OAuth 2.0 Token Exchange Target Service Discovery"
 abbrev: Token Exchange Target Service Discovery"
 docName: "draft-mcguinness-token-exchange-target-service-discovery-latest"
 category:  "std"
