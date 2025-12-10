@@ -2,7 +2,7 @@
 
 
 
-Web Authorization Protocol                                 K. McGuinness
+Network Working Group                                      K. McGuinness
 Internet-Draft                                               Independent
 Intended status: Standards Track                              A. Parecki
 Expires: 13 June 2026                                               Okta
@@ -33,11 +33,6 @@ About This Document
    discovery.html.  Status information for this document may be found at
    https://datatracker.ietf.org/doc/draft-mcguinness-token-exchange-
    target-service-discovery/.
-
-   Discussion of this document takes place on the Web Authorization
-   Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
-   archived at https://mailarchive.ietf.org/arch/browse/oauth/.
-   Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
 
    Source for this draft and an issue tracker can be found at
    https://github.com/mcguinness/draft-mcguinness-token-exchange-target-
@@ -177,10 +172,9 @@ Table of Contents
    token_exchange_target_service_discovery_endpoint
 
    The value MUST be the absolute URL of the Target Service Discovery
-   Endpoint.
-   Clients MUST obtain this value from Authorization Server Metadata
-   (RFC 8414).
-   No specific path is mandated by this specification.
+   Endpoint.  Clients MUST obtain this value from Authorization Server
+   Metadata (RFC 8414).  No specific path is mandated by this
+   specification.
 
    The endpoint:
 
@@ -223,31 +217,21 @@ Table of Contents
 
 3.3.1.  Response Parameter Table
 
-    +======================+===============+==========+==============+
-    | Field                | Description   | Required | Registration |
-    +======================+===============+==========+==============+
-    | audience             | A permitted   | Yes      | RFC 8693     |
-    |                      | audience for  |          |              |
-    |                      | Token         |          |              |
-    |                      | Exchange.     |          |              |
-    +----------------------+---------------+----------+--------------+
-    | resource             | A permitted   | No       | RFC 8707     |
-    |                      | resource      |          |              |
-    |                      | indicator     |          |              |
-    |                      | (string or    |          |              |
-    |                      | array).       |          |              |
-    +----------------------+---------------+----------+--------------+
-    | scope                | Permitted     | No       | RFC 6749     |
-    |                      | OAuth scopes. |          |              |
-    +----------------------+---------------+----------+--------------+
-    | requested_token_type | A token type  | No       | Token        |
-    |                      | permitted for |          | Exchange     |
-    |                      | downstream    |          | Token Type   |
-    |                      | identity      |          | Registry     |
-    |                      | chaining.     |          |              |
-    +----------------------+---------------+----------+--------------+
+   +==========+==============================+==========+==============+
+   | Field    | Description                  | Required | Registration |
+   +==========+==============================+==========+==============+
+   | audience | A permitted audience         | Yes      | RFC 8693     |
+   |          | for Token Exchange.          |          |              |
+   +----------+------------------------------+----------+--------------+
+   | resource | A permitted resource         | No       | RFC 8707     |
+   |          | indicator (string or         |          |              |
+   |          | array).                      |          |              |
+   +----------+------------------------------+----------+--------------+
+   | scope    | Permitted OAuth              | No       | RFC 6749     |
+   |          | scopes.                      |          |              |
+   +----------+------------------------------+----------+--------------+
 
-                                 Table 2
+                                  Table 2
 
 4.  Cross-Domain Identity Chaining Example
 
@@ -270,8 +254,8 @@ Table of Contents
 
 4.1.1.  Request
 
-   ``` POST https://as.domainA.example/target-discovery Content-Type:
-   application/x-www-form-urlencoded
+   ```http POST https://as.domainA.example/target-discovery Content-
+   Type: application/x-www-form-urlencoded
 
    client_id=client-A
    &client_assertion_type=urn:ietf:params:oauth:client-assertion-
@@ -281,8 +265,8 @@ Table of Contents
 
 4.1.2.  Response
 
-   [ { "audience": "https://api.domainB.example", "resource": ["orders",
-   "inventory"], "scope": "orders.read inventory.read",
+   json [ { "audience": "https://api.domainB.example", "resource":
+   ["orders", "inventory"], "scope": "orders.read inventory.read",
    "requested_token_type": "urn:ietf:params:oauth:token-type:jwt" } ]
 
    From this response the client learns:
@@ -321,8 +305,8 @@ Table of Contents
 
 4.3.1.  Token Exchange Request
 
-   ``` POST https://as.domainA.example/token Content-Type: application/
-   x-www-form-urlencoded
+   ```http POST https://as.domainA.example/token Content-Type:
+   application/x-www-form-urlencoded
 
    grant_type=urn:ietf:params:oauth:grant-type:token-exchange
    &subject_token=SlAV32hkKG...ACCESSTOKEN...
@@ -333,9 +317,10 @@ Table of Contents
 
 4.3.2.  Token Exchange Response
 
-   { "access_token": "eyJraWQiOi...DOMAINB.JWT...", "issued_token_type":
-   "urn:ietf:params:oauth:token-type:jwt", "token_type": "Bearer",
-   "expires_in": 3600, "scope": "orders.read inventory.read" }
+   json { "access_token": "eyJraWQiOi...DOMAINB.JWT...",
+   "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
+   "token_type": "Bearer", "expires_in": 3600, "scope": "orders.read
+   inventory.read" }
 
    The client now holds a *Domain B–scoped JWT*, derived from Domain A’s
    access token.
