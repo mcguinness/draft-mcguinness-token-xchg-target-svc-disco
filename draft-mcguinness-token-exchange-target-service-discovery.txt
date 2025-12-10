@@ -1,0 +1,462 @@
+
+
+
+
+Web Authorization Protocol                                 K. McGuinness
+Internet-Draft                                               Independent
+Intended status: Standards Track                              A. Parecki
+Expires: 13 June 2026                                               Okta
+                                                        10 December 2025
+
+
+           OAuth 2.0 Token Exchange Target Service Discovery
+    draft-mcguinness-token-exchange-target-service-discovery-latest
+
+Abstract
+
+   This specification defines a discovery endpoint that enables OAuth
+   2.0 clients to determine which audiences, resources, and scopes for a
+   target service they are allowed to request with OAuth 2.0 Token
+   Exchange (RFC 8693).  The endpoint accepts any subject token type
+   registered in the Token Exchange Token Type registry and returns
+   values that are valid inputs to subsequent Token Exchange requests,
+   supporting advanced use cases such as identity chaining and cross-
+   domain delegation.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://mcguinness.github.io/draft-mcguinness-token-exchange-target-
+   service-discovery/draft-mcguinness-token-exchange-target-service-
+   discovery.html.  Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-mcguinness-token-exchange-
+   target-service-discovery/.
+
+   Discussion of this document takes place on the Web Authorization
+   Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
+   archived at https://mailarchive.ietf.org/arch/browse/oauth/.
+   Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/mcguinness/draft-mcguinness-token-exchange-target-
+   service-discovery.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 13 June 2026.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Conventions and Definitions
+   3.  Token Exchange Target Service Discovery Endpoint
+     3.1.  Endpoint Definition
+     3.2.  Request Parameters
+     3.3.  Successful Response
+       3.3.1.  Response Parameter Table
+   4.  Cross-Domain Identity Chaining Example
+     4.1.  Step 1 — Discover Target Audiences, Resources, and Scopes
+       4.1.1.  Request
+       4.1.2.  Response
+     4.2.  Step 2 — Discover Allowed Token Types for the Audience’s
+           Authorization Server
+       4.2.1.  Domain B AS Metadata
+       4.2.2.  Example Metadata
+     4.3.  Step 3 — Perform Token Exchange Using the Discovered Token
+           Type
+       4.3.1.  Token Exchange Request
+       4.3.2.  Token Exchange Response
+   5.  Error Responses
+   6.  Metadata Discovery
+   7.  Security Considerations
+   8.  Privacy Considerations
+   9.  IANA Considerations
+   10. Normative References
+   Acknowledgments
+   Authors' Addresses
+
+1.  Introduction
+
+   OAuth 2.0 Token Exchange (RFC 8693) enables a client to exchange one
+   security token for another to obtain a token targeted at a different
+   audience, resource, or security domain.  However, a client must
+   already know which values it is permitted to request.  Today, this
+   knowledge is typically provided through static configuration,
+   proprietary APIs, or informal documentation, leading to brittle
+   integrations and unnecessary Token Exchange failures.
+
+   This specification defines the *OAuth 2.0 Token Exchange Target
+   Service Discovery Endpoint*, a standardized mechanism that allows
+   clients to dynamically discover the set of permitted Token Exchange
+   targets (audiences, resources, and scopes) for a given subject token.
+   The authorization server evaluates both the subject token and the
+   client’s permissions and returns only the values the client is
+   authorized to request.
+
+   This extension is especially valuable in *identity chaining* and
+   *cross-domain authorization* scenarios, such as:
+
+   *  Multi-tier microservices architectures where tokens must be
+      progressively exchanged with narrower permissions.
+
+   *  Cross-organizational and federated systems where downstream
+      services exist in separate administrative domains.
+
+   *  Cross-cloud or hybrid deployments requiring strict control over
+      which domains may issue or accept exchanged tokens.
+
+   *  Delegated flows where derived tokens represent constrained or
+      transformed identities across trust boundaries.
+
+   Benefits include:
+
+   *  *Eliminates static configuration* — clients no longer rely on
+      manually configured audience or resource lists.
+
+   *  *Reduces Token Exchange failures* — the client learns valid
+      targets before attempting a Token Exchange request.
+
+   *  *Supports identity chaining* — the AS can provide the next
+      allowable “hop” in a derived-identity chain.
+
+   *  *Enhances cross-domain trust* — prevents clients from requesting
+      tokens for unauthorized or untrusted domains.
+
+   *  *Improves interoperability* — standardizes previously proprietary
+      discovery mechanisms.
+
+   *  *Improves developer and operator experience* — tools can
+      automatically enumerate valid downstream targets.
+
+   *  *Supports dynamic authorization* — results reflect real-time
+      policy evaluation, client permissions, and subject token context.
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Token Exchange Target Service Discovery Endpoint
+
+3.1.  Endpoint Definition
+
+   A new Authorization Server metadata parameter is defined:
+
+   token_exchange_target_service_discovery_endpoint
+
+   The value MUST be the absolute URL of the Target Service Discovery
+   Endpoint.
+   Clients MUST obtain this value from Authorization Server Metadata
+   (RFC 8414).
+   No specific path is mandated by this specification.
+
+   The endpoint:
+
+   *  MUST accept HTTP POST
+
+   *  MUST use application/x-www-form-urlencoded
+
+   *  MAY require client authentication
+
+   *  MAY apply authorization policy
+
+3.2.  Request Parameters
+
+   This specification defines only the parameters required for Target
+   Service Discovery:
+
+   +====================+===================+==========+===============+
+   | Parameter          | Description       | Required | Registration  |
+   +====================+===================+==========+===============+
+   | subject_token      | The subject       | Yes      | Token         |
+   |                    | token used        |          | Exchange      |
+   |                    | as input to       |          | Subject Token |
+   |                    | discovery.        |          | Registry      |
+   +--------------------+-------------------+----------+---------------+
+   | subject_token_type | The type of       | Yes      | Token         |
+   |                    | the subject       |          | Exchange      |
+   |                    | token.            |          | Token Type    |
+   |                    |                   |          | Registry      |
+   +--------------------+-------------------+----------+---------------+
+
+                                  Table 1
+
+   Client authentication is RECOMMENDED but NOT REQUIRED.  Client
+   Authentication parameters are defined in their respective OAuth
+   profiles.
+
+3.3.  Successful Response
+
+   The response is a JSON array of permitted Token Exchange targets.
+
+3.3.1.  Response Parameter Table
+
+    +======================+===============+==========+==============+
+    | Field                | Description   | Required | Registration |
+    +======================+===============+==========+==============+
+    | audience             | A permitted   | Yes      | RFC 8693     |
+    |                      | audience for  |          |              |
+    |                      | Token         |          |              |
+    |                      | Exchange.     |          |              |
+    +----------------------+---------------+----------+--------------+
+    | resource             | A permitted   | No       | RFC 8707     |
+    |                      | resource      |          |              |
+    |                      | indicator     |          |              |
+    |                      | (string or    |          |              |
+    |                      | array).       |          |              |
+    +----------------------+---------------+----------+--------------+
+    | scope                | Permitted     | No       | RFC 6749     |
+    |                      | OAuth scopes. |          |              |
+    +----------------------+---------------+----------+--------------+
+    | requested_token_type | A token type  | No       | Token        |
+    |                      | permitted for |          | Exchange     |
+    |                      | downstream    |          | Token Type   |
+    |                      | identity      |          | Registry     |
+    |                      | chaining.     |          |              |
+    +----------------------+---------------+----------+--------------+
+
+                                 Table 2
+
+4.  Cross-Domain Identity Chaining Example
+
+   This example demonstrates the complete cross-domain identity-chaining
+   workflow:
+
+   1.  *Discover permitted audiences/resources/scopes* for a given
+       _subject access token_.
+
+   2.  *Discover downstream token types* for the target audience using
+       OAuth Authorization Server Metadata.
+
+   3.  *Perform Token Exchange* using a _requested token type_ returned
+       by discovery.
+
+4.1.  Step 1 — Discover Target Audiences, Resources, and Scopes
+
+   The client begins with a subject *access token* issued by Domain A
+   and calls the Target Service Discovery Endpoint.
+
+4.1.1.  Request
+
+   ``` POST https://as.domainA.example/target-discovery Content-Type:
+   application/x-www-form-urlencoded
+
+   client_id=client-A
+   &client_assertion_type=urn:ietf:params:oauth:client-assertion-
+   type:jwt-bearer &client_assertion=eyJhbGciOi...
+   &subject_token=SlAV32hkKG...ACCESSTOKEN...
+   &subject_token_type=urn:ietf:params:oauth:token-type:access_token ```
+
+4.1.2.  Response
+
+   [ { "audience": "https://api.domainB.example", "resource": ["orders",
+   "inventory"], "scope": "orders.read inventory.read",
+   "requested_token_type": "urn:ietf:params:oauth:token-type:jwt" } ]
+
+   From this response the client learns:
+
+   *  The permitted downstream audience: https://api.domainB.example
+
+   *  Permitted scopes/resources
+
+   *  Recommended downstream token type: urn:ietf:params:oauth:token-
+      type:jwt
+
+4.2.  Step 2 — Discover Allowed Token Types for the Audience’s
+      Authorization Server
+
+   The client queries the Authorization Server Metadata of Domain B to
+   ensure the requested token type is supported.
+
+4.2.1.  Domain B AS Metadata
+
+   GET https://as.domainB.example/.well-known/oauth-authorization-server
+
+4.2.2.  Example Metadata
+
+   json { "issuer": "https://as.domainB.example",
+   "identity_chaining_requested_token_types_supported": [
+   "urn:ietf:params:oauth:token-type:jwt", "urn:ietf:params:oauth:token-
+   type:access_token" ] }
+
+   This confirms that Domain B *supports JWT as a downstream token
+   type*.
+
+4.3.  Step 3 — Perform Token Exchange Using the Discovered Token Type
+
+   The client now performs Token Exchange with Domain A’s token
+   endpoint, requesting a JWT for Domain B.
+
+4.3.1.  Token Exchange Request
+
+   ``` POST https://as.domainA.example/token Content-Type: application/
+   x-www-form-urlencoded
+
+   grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+   &subject_token=SlAV32hkKG...ACCESSTOKEN...
+   &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+   &requested_token_type=urn:ietf:params:oauth:token-type:jwt
+   &audience=https://api.domainB.example &scope=orders.read
+   inventory.read ```
+
+4.3.2.  Token Exchange Response
+
+   { "access_token": "eyJraWQiOi...DOMAINB.JWT...", "issued_token_type":
+   "urn:ietf:params:oauth:token-type:jwt", "token_type": "Bearer",
+   "expires_in": 3600, "scope": "orders.read inventory.read" }
+
+   The client now holds a *Domain B–scoped JWT*, derived from Domain A’s
+   access token.
+
+5.  Error Responses
+
+   Any registered OAuth 2.0 error may be returned.  Some examples
+   include:
+
+    +========================+========================+==============+
+    | Error                  | When Returned          | Registration |
+    +========================+========================+==============+
+    | invalid_request        | Missing or malformed   | RFC 6749     |
+    |                        | parameters.            |              |
+    +------------------------+------------------------+--------------+
+    | invalid_client         | Client authentication  | RFC 6749     |
+    |                        | failure.               |              |
+    +------------------------+------------------------+--------------+
+    | unauthorized_client    | Client not permitted   | RFC 6749     |
+    |                        | to perform discovery.  |              |
+    +------------------------+------------------------+--------------+
+    | invalid_grant          | Subject token invalid, | RFC 6749 /   |
+    |                        | expired, or failed     | RFC 8693     |
+    |                        | validation.            |              |
+    +------------------------+------------------------+--------------+
+    | unsupported_grant_type | Server interprets      | RFC 6749     |
+    |                        | request as unsupported |              |
+    |                        | structure.             |              |
+    +------------------------+------------------------+--------------+
+    | invalid_scope          | Client requests        | RFC 6749     |
+    |                        | unauthorized scopes.   |              |
+    +------------------------+------------------------+--------------+
+
+                                 Table 3
+
+6.  Metadata Discovery
+
+   Metadata field:
+
+    +================================================+====+===========+
+    |Name                                            |Type|Description|
+    +================================================+====+===========+
+    |token_exchange_target_service_discovery_endpoint|URL |Token      |
+    |                                                |    |Exchange   |
+    |                                                |    |Target     |
+    |                                                |    |Service    |
+    |                                                |    |Discovery  |
+    |                                                |    |Endpoint   |
+    +------------------------------------------------+----+-----------+
+
+                                  Table 4
+
+7.  Security Considerations
+
+   Token validation, policy enforcement, enumeration protections, and
+   safe error handling.
+
+8.  Privacy Considerations
+
+   Discovery results may reveal authorization relationships; servers
+   SHOULD minimize exposure.
+
+9.  IANA Considerations
+
+   Register token_exchange_target_service_discovery_endpoint.
+
+10.  Normative References
+
+   [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/info/rfc6749>.
+
+   [RFC8707]  Campbell, B., Bradley, J., and H. Tschofenig, "Resource
+              Indicators for OAuth 2.0", RFC 8707, DOI 10.17487/RFC8707,
+              February 2020, <https://www.rfc-editor.org/info/rfc8707>.
+
+   [RFC9728]  Jones, M.B., Hunt, P., and A. Parecki, "OAuth 2.0
+              Protected Resource Metadata", RFC 9728,
+              DOI 10.17487/RFC9728, April 2025,
+              <https://www.rfc-editor.org/info/rfc9728>.
+
+   [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
+              Authorization Server Metadata", RFC 8414,
+              DOI 10.17487/RFC8414, June 2018,
+              <https://www.rfc-editor.org/info/rfc8414>.
+
+   [RFC9207]  Meyer zu Selhausen, K. and D. Fett, "OAuth 2.0
+              Authorization Server Issuer Identification", RFC 9207,
+              DOI 10.17487/RFC9207, March 2022,
+              <https://www.rfc-editor.org/info/rfc9207>.
+
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/info/rfc3986>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/info/rfc7519>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+Acknowledgments
+
+   TODO acknowledge.
+
+Authors' Addresses
+
+   Karl McGuinness
+   Independent
+   Email: public@karlmcguinness.com
+
+
+   Aaron Parecki
+   Okta
+   Email: aaron@parecki.com
+   URI:   https://www.okta.com
