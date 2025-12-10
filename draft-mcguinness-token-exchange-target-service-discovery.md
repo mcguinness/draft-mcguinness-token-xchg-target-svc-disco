@@ -119,7 +119,6 @@ The response is a JSON array of permitted Token Exchange targets.
 | `audience` | A permitted audience for Token Exchange. | Yes | RFC 8693 |
 | `resource` | A permitted resource indicator (string or array). | No | RFC 8707 |
 | `scope` | Permitted OAuth scopes. | No | RFC 6749 |
-| `requested_token_type` | A token type permitted for downstream identity chaining. | No | Token Exchange Token Type Registry |
 
 # Cross-Domain Identity Chaining Example
 
@@ -135,7 +134,7 @@ The client begins with a subject **access token** issued by Domain A and calls t
 
 ### Request
 
-```
+```http
 POST https://as.domainA.example/target-discovery
 Content-Type: application/x-www-form-urlencoded
 
@@ -148,7 +147,7 @@ client_id=client-A
 
 ### Response
 
-```
+```json
 [
   {
     "audience": "https://api.domainB.example",
@@ -195,7 +194,7 @@ The client now performs Token Exchange with Domain A’s token endpoint, request
 
 ### Token Exchange Request
 
-```
+```http
 POST https://as.domainA.example/token
 Content-Type: application/x-www-form-urlencoded
 
@@ -209,7 +208,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 ### Token Exchange Response
 
-```
+```json
 {
   "access_token": "eyJraWQiOi...DOMAINB.JWT...",
   "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
