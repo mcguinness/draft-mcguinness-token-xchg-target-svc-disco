@@ -134,35 +134,30 @@ The client begins with a subject **access token** issued by Domain A and calls t
 
 ### Request
 
-```http
-POST https://as.domainA.example/target-discovery
-Content-Type: application/x-www-form-urlencoded
 
-client_id=client-A
-&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-&client_assertion=eyJhbGciOi...
-&subject_token=SlAV32hkKG...ACCESSTOKEN...
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-```
+    POST https://as.domainA.example/target-discovery
+    Content-Type: application/x-www-form-urlencoded
+
+    client_id=client-A
+    &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+    &client_assertion=eyJhbGciOi...
+    &subject_token=SlAV32hkKG...ACCESSTOKEN...
+    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
 
 ### Response
 
-```json
-[
-  {
-    "audience": "https://api.domainB.example",
-    "resource": ["orders", "inventory"],
-    "scope": "orders.read inventory.read",
-    "requested_token_type": "urn:ietf:params:oauth:token-type:jwt"
-  }
-]
-```
+    [
+      {
+        "audience": "https://api.domainB.example",
+        "resource": ["orders", "inventory"],
+        "scope": "orders.read inventory.read"
+      }
+    ]
 
 From this response the client learns:
 
 * The permitted downstream audience: `https://api.domainB.example`
 * Permitted scopes/resources
-* Recommended downstream token type: `urn:ietf:params:oauth:token-type:jwt`
 
 ## Step 2 — Discover Allowed Token Types for the Audience’s Authorization Server
 
@@ -170,21 +165,17 @@ The client queries the Authorization Server Metadata of Domain B to ensure the r
 
 ### Domain B AS Metadata
 
-```
-GET https://as.domainB.example/.well-known/oauth-authorization-server
-```
+    GET https://as.domainB.example/.well-known/oauth-authorization-server
 
 ### Example Metadata
 
-```json
-{
-  "issuer": "https://as.domainB.example",
-  "identity_chaining_requested_token_types_supported": [
-    "urn:ietf:params:oauth:token-type:jwt",
-    "urn:ietf:params:oauth:token-type:access_token"
-  ]
-}
-```
+    {
+      "issuer": "https://as.domainB.example",
+      "identity_chaining_requested_token_types_supported": [
+        "urn:ietf:params:oauth:token-type:jwt",
+        "urn:ietf:params:oauth:token-type:access_token"
+      ]
+    }
 
 This confirms that Domain B **supports JWT as a downstream token type**.
 
@@ -194,29 +185,26 @@ The client now performs Token Exchange with Domain A’s token endpoint, request
 
 ### Token Exchange Request
 
-```http
-POST https://as.domainA.example/token
-Content-Type: application/x-www-form-urlencoded
+    POST https://as.domainA.example/token
+    Content-Type: application/x-www-form-urlencoded
 
-grant_type=urn:ietf:params:oauth:grant-type:token-exchange
-&subject_token=SlAV32hkKG...ACCESSTOKEN...
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-&requested_token_type=urn:ietf:params:oauth:token-type:jwt
-&audience=https://api.domainB.example
-&scope=orders.read inventory.read
-```
+    grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+    &subject_token=SlAV32hkKG...ACCESSTOKEN...
+    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+    &requested_token_type=urn:ietf:params:oauth:token-type:jwt
+    &audience=https://api.domainB.example
+    &scope=orders.read inventory.read
+
 
 ### Token Exchange Response
 
-```json
-{
-  "access_token": "eyJraWQiOi...DOMAINB.JWT...",
-  "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
-  "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "orders.read inventory.read"
-}
-```
+    {
+      "access_token": "eyJraWQiOi...DOMAINB.JWT...",
+      "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
+      "token_type": "Bearer",
+      "expires_in": 3600,
+      "scope": "orders.read inventory.read"
+    }
 
 The client now holds a **Domain B–scoped JWT**, derived from Domain A’s access token.
 
