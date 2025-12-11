@@ -36,9 +36,9 @@ normative:
   RFC8707:
   RFC9728:
   RFC8414:
-  RFC9207:
   RFC3986:
   RFC7519:
+  RFC8693:
 
 informative:
 
@@ -50,9 +50,11 @@ This specification defines a discovery endpoint that enables OAuth 2.0 clients t
 
 # Introduction
 
-OAuth 2.0 Token Exchange (RFC 8693) enables a client to exchange one security token for another to obtain a token targeted at a different audience, resource, or security domain. However, a client must already know which values it is permitted to request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures.
+OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued in one security domain to an Authorization Server and securely trade it for a new token issued for another domain. The exchanged token is minted with the target server’s token requirements, including its own audience, resource indicators, and scopes, so it becomes valid and enforceable for the desired downstream service. This enables controlled cross-domain access, removes the confused-deputy problem by ensuring tokens are explicitly targeted to the correct service, and avoids requiring direct trust between the original token issuer and the target service.
 
-This specification defines the **OAuth 2.0 Token Exchange Target Service Discovery Endpoint**, a standardized mechanism that allows clients to dynamically discover the set of permitted Token Exchange targets (audiences, resources, and scopes) for a given subject token. The authorization server evaluates both the subject token and the client’s permissions and returns only the values the client is authorized to request.
+Authorization Servers may be capable of issuing tokens to multiple services for a given subject token and client, but the client must already know which values it is permitted to request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures, particularly when subjects are authorized to access only a subset of available services.
+
+This specification defines the **OAuth 2.0 Token Exchange Target Service Discovery Endpoint**, a standardized mechanism that enables clients to dynamically discover the set of permitted Token Exchange targets (audiences, resources, and scopes) for a given subject token. The authorization server evaluates both the subject token and the client’s permissions and returns only the values the client is authorized to request.
 
 This extension is especially valuable in **identity chaining** and **cross-domain authorization** scenarios, such as:
 
@@ -65,7 +67,7 @@ Benefits include:
 
 * **Eliminates static configuration** — clients no longer rely on manually configured audience or resource lists.
 * **Reduces Token Exchange failures** — the client learns valid targets before attempting a Token Exchange request.
-* **Supports identity chaining** — the AS can provide the next allowable “hop” in a derived-identity chain.
+* **Supports identity chaining** — the suthorization server can provide the next allowable “hop” in a derived-identity chain.
 * **Enhances cross-domain trust** — prevents clients from requesting tokens for unauthorized or untrusted domains.
 * **Improves interoperability** — standardizes previously proprietary discovery mechanisms.
 * **Improves developer and operator experience** — tools can automatically enumerate valid downstream targets.
@@ -86,7 +88,7 @@ token_exchange_target_service_discovery_endpoint
 ```
 
 The value MUST be the absolute URL of the Target Service Discovery Endpoint.
-Clients MUST obtain this value from Authorization Server Metadata (RFC 8414).
+Clients MUST obtain this value from Authorization Server Metadata {{RFC8414}}.
 No specific path is mandated by this specification.
 
 The endpoint:
@@ -116,8 +118,8 @@ The response is a JSON array of permitted Token Exchange targets.
 
 | Field | Description | Required | Registration |
 |-------|-------------|----------|--------------|
-| `audience` | A permitted audience for Token Exchange. | Yes | RFC 8693 |
-| `resource` | A permitted resource indicator (string or array). | No | RFC 8707 |
+| `audience` | A permitted audience for Token Exchange. | Yes | {{RFC8693}} |
+| `resource` | A permitted resource indicator (string or array). | No | {{RFC8707}} |
 | `scope` | Permitted OAuth scopes. | No | RFC 6749 |
 
 # Cross-Domain Identity Chaining Example
@@ -172,8 +174,7 @@ The client queries the Authorization Server Metadata of Domain B to ensure the r
     {
       "issuer": "https://as.domainB.example",
       "identity_chaining_requested_token_types_supported": [
-        "urn:ietf:params:oauth:token-type:jwt",
-        "urn:ietf:params:oauth:token-type:access_token"
+        "urn:ietf:params:oauth:token-type:jwt-bearer"
       ]
     }
 
@@ -191,7 +192,7 @@ The client now performs Token Exchange with Domain A’s token endpoint, request
     grant_type=urn:ietf:params:oauth:grant-type:token-exchange
     &subject_token=SlAV32hkKG...ACCESSTOKEN...
     &subject_token_type=urn:ietf:params:oauth:token-type:access_token
-    &requested_token_type=urn:ietf:params:oauth:token-type:jwt
+    &requested_token_type=urn:ietf:params:oauth:token-type:jwt-bearer
     &audience=https://api.domainB.example
     &scope=orders.read inventory.read
 
@@ -200,8 +201,8 @@ The client now performs Token Exchange with Domain A’s token endpoint, request
 
     {
       "access_token": "eyJraWQiOi...DOMAINB.JWT...",
-      "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
-      "token_type": "Bearer",
+      "issued_token_type": "urn:ietf:params:oauth:token-type:jwt-bearer",
+      "token_type": "N_A",
       "expires_in": 3600,
       "scope": "orders.read inventory.read"
     }
@@ -214,12 +215,12 @@ Any registered OAuth 2.0 error may be returned.  Some examples include:
 
 | Error | When Returned | Registration |
 |-------|---------------|--------------|
-| `invalid_request` | Missing or malformed parameters. | RFC 6749 |
-| `invalid_client` | Client authentication failure. | RFC 6749 |
-| `unauthorized_client` | Client not permitted to perform discovery. | RFC 6749 |
-| `invalid_grant` | Subject token invalid, expired, or failed validation. | RFC 6749 / RFC 8693 |
-| `unsupported_grant_type` | Server interprets request as unsupported structure. | RFC 6749 |
-| `invalid_scope` | Client requests unauthorized scopes. | RFC 6749 |
+| `invalid_request` | Missing or malformed parameters. | {{RFC6749}} |
+| `invalid_client` | Client authentication failure. | {{RFC6749}} |
+| `unauthorized_client` | Client not permitted to perform discovery. | {{RFC6749}}9 |
+| `invalid_grant` | Subject token invalid, expired, or failed validation. |  {{RFC6749}} |
+| `unsupported_grant_type` | Server interprets request as unsupported structure. | {{RFC6749}} |
+| `invalid_scope` | Client requests unauthorized scopes. | {{RFC6749}} |
 
 # Metadata Discovery
 
