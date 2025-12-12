@@ -106,14 +106,13 @@ The client MAY include additional parameters as defined by the OAuth 2.0 specifi
 
 The following is an example of a discovery request:
 
-```
-POST /target-discovery HTTP/1.1
-Host: as.example.com
-Content-Type: application/x-www-form-urlencoded
+    POST /target-discovery HTTP/1.1
+    Host: as.example.com
+    Content-Type: application/x-www-form-urlencoded
 
-subject_token=SlAV32hkKG...ACCESSTOKEN...
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-```
+    subject_token=SlAV32hkKG...ACCESSTOKEN...
+    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+
 
 ## Endpoint Response
 
@@ -145,35 +144,33 @@ If no target services are available for the given subject token and client, the 
 
 The following is an example of a successful discovery response:
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
+    HTTP/1.1 200 OK
+    Content-Type: application/json
 
-[
-  {
-    "audience": "https://api.example.com",
-    "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
-    "scope": "orders.read inventory.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+    [
+      {
+        "audience": "https://api.example.com",
+        "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
+        "scope": "orders.read inventory.read",
+        "supported_token_types": [
+          "urn:ietf:params:oauth:token-type:jwt-bearer"
+        ]
+      },
+      {
+        "audience": "https://api.example.com",
+        "scope": "analytics.read",
+        "supported_token_types": [
+          "urn:ietf:params:oauth:token-type:jwt-bearer"
+        ]
+      },
+      {
+        "resource": ["https://api.example.com/reports"],
+        "scope": "reports.read",
+        "supported_token_types": [
+          "urn:ietf:params:oauth:token-type:jwt-bearer"
+        ]
+      }
     ]
-  },
-  {
-    "audience": "https://api.example.com",
-    "scope": "analytics.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
-    ]
-  },
-  {
-    "resource": ["https://api.example.com/reports"],
-    "scope": "reports.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
-    ]
-  }
-]
-```
 
 ## Error Response
 
@@ -221,35 +218,31 @@ The client begins with a subject access token issued by Domain A and calls the t
 
 ### Discovery Request
 
-```
-POST https://as.domainA.example/target-discovery HTTP/1.1
-Host: as.domainA.example
-Content-Type: application/x-www-form-urlencoded
+    POST https://as.domainA.example/target-discovery HTTP/1.1
+    Host: as.domainA.example
+    Content-Type: application/x-www-form-urlencoded
 
-client_id=client-A
-&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-&client_assertion=eyJhbGciOi...
-&subject_token=SlAV32hkKG...ACCESSTOKEN...
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-```
+    client_id=client-A
+    &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+    &client_assertion=eyJhbGciOi...
+    &subject_token=SlAV32hkKG...ACCESSTOKEN...
+    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
 
 ### Discovery Response
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
+    HTTP/1.1 200 OK
+    Content-Type: application/json
 
-[
-  {
-    "audience": "https://api.domainB.example",
-    "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
-    "scope": "orders.read inventory.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+    [
+      {
+        "audience": "https://api.domainB.example",
+        "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
+        "scope": "orders.read inventory.read",
+        "supported_token_types": [
+          "urn:ietf:params:oauth:token-type:jwt-bearer"
+        ]
+      }
     ]
-  }
-]
-```
 
 From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that JWT bearer tokens are supported for this target service.
 
@@ -259,25 +252,21 @@ If the discovery response does not include `supported_token_types`, or if the cl
 
 ### Metadata Request
 
-```
-GET https://as.domainB.example/.well-known/oauth-authorization-server HTTP/1.1
-Host: as.domainB.example
-```
+    GET https://as.domainB.example/.well-known/oauth-authorization-server HTTP/1.1
+    Host: as.domainB.example
 
 ### Metadata Response
 
-```
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{
-  "issuer": "https://as.domainB.example",
-  "token_endpoint": "https://as.domainB.example/token",
-  "requested_token_types_supported": [
-    "urn:ietf:params:oauth:token-type:jwt-bearer"
-  ]
-}
-```
+    {
+      "issuer": "https://as.domainB.example",
+      "token_endpoint": "https://as.domainB.example/token",
+      "requested_token_types_supported": [
+        "urn:ietf:params:oauth:token-type:jwt-bearer"
+      ]
+    }
 
 This confirms that Domain B supports JWT bearer tokens as a requested token type.
 
@@ -287,35 +276,31 @@ The client now performs a token exchange with Domain A's token endpoint, request
 
 ### Token Exchange Request
 
-```
-POST https://as.domainA.example/token HTTP/1.1
-Host: as.domainA.example
-Content-Type: application/x-www-form-urlencoded
+    POST https://as.domainA.example/token HTTP/1.1
+    Host: as.domainA.example
+    Content-Type: application/x-www-form-urlencoded
 
-grant_type=urn:ietf:params:oauth:grant-type:token-exchange
-&subject_token=SlAV32hkKG...ACCESSTOKEN...
-&subject_token_type=urn:ietf:params:oauth:token-type:access_token
-&requested_token_type=urn:ietf:params:oauth:token-type:jwt-bearer
-&audience=https://api.domainB.example
-&resource=https://api.domainB.example/orders
-&resource=https://api.domainB.example/inventory
-&scope=orders.read inventory.read
-```
+    grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+    &subject_token=SlAV32hkKG...ACCESSTOKEN...
+    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+    &requested_token_type=urn:ietf:params:oauth:token-type:jwt-bearer
+    &audience=https://api.domainB.example
+    &resource=https://api.domainB.example/orders
+    &resource=https://api.domainB.example/inventory
+    &scope=orders.read inventory.read
 
 ### Token Exchange Response
 
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
+    HTTP/1.1 200 OK
+    Content-Type: application/json
 
-{
-  "access_token": "eyJraWQiOi...DOMAINB.JWT...",
-  "issued_token_type": "urn:ietf:params:oauth:token-type:jwt-bearer",
-  "token_type": "N_A",
-  "expires_in": 3600,
-  "scope": "orders.read inventory.read"
-}
-```
+    {
+      "access_token": "eyJraWQiOi...DOMAINB.JWT...",
+      "issued_token_type": "urn:ietf:params:oauth:token-type:jwt-bearer",
+      "token_type": "N_A",
+      "expires_in": 3600,
+      "scope": "orders.read inventory.read"
+    }
 
 The client now holds a Domain B-scoped JWT token that can be used to access the target service, derived from Domain A's access token through the token exchange process.
 
@@ -328,12 +313,10 @@ token_exchange_target_service_discovery_endpoint
 
 The following is a non-normative example of the metadata:
 
-```
-{
-  "issuer": "https://as.example.com",
-  "token_exchange_target_service_discovery_endpoint": "https://as.example.com/target-discovery"
-}
-```
+    {
+      "issuer": "https://as.example.com",
+      "token_exchange_target_service_discovery_endpoint": "https://as.example.com/target-discovery"
+    }
 
 # Security Considerations
 
