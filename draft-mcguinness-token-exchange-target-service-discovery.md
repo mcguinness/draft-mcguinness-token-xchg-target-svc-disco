@@ -198,15 +198,13 @@ temporarily_unavailable
 
 The following is an example of an error response:
 
-```
-HTTP/1.1 400 Bad Request
-Content-Type: application/json
+    HTTP/1.1 400 Bad Request
+    Content-Type: application/json
 
-{
-  "error": "invalid_request",
-  "error_description": "The subject token is invalid or expired"
-}
-```
+    {
+      "error": "invalid_request",
+      "error_description": "The subject token is invalid or expired"
+    }
 
 # Example
 
@@ -257,8 +255,8 @@ If the discovery response does not include `supported_token_types`, or if the cl
 
 ### Metadata Response
 
-HTTP/1.1 200 OK
-Content-Type: application/json
+    HTTP/1.1 200 OK
+    Content-Type: application/json
 
     {
       "issuer": "https://as.domainB.example",
