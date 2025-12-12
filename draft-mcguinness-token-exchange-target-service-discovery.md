@@ -41,7 +41,17 @@ normative:
 
 informative:
   I-D.ietf-oauth-identity-chaining:
-  I-D.ietf-draft-parecki-oauth-identity-assertion-authz-grant:
+  I-D.oauth-identity-assertion-authz-grant:
+    title: OAuth 2.0 Identity Assertion JWT Authorization Grant
+    target: https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/
+    author:
+      - ins: A. Parecki
+        name: Aaron Parecki
+      - ins: K. McGuinness
+        name: Karl McGuinness
+      - ins: B. Campbell
+        name: Brian Campbell
+    date: 2025
 
 --- abstract
 
@@ -63,7 +73,7 @@ This extension is especially valuable in scenarios requiring identity chaining a
 
 * Cross-boundary deployments where downstream services exist in separate administrative, organizational, or cloud domains requiring strict control over token issuance and acceptance. Unlike progressive token exchange which focuses on permission transformation within a single domain, this scenario addresses the challenge of discovering available target services across distinct trust boundaries where authorization policies are independently managed. Discovery is essential here because authorization policies and available target services change dynamically across these boundaries, and static configuration cannot reflect real-time policy decisions or account for varying permissions across different administrative domains.
 
-* Single Sign-On (SSO) to API flows, such as those enabled by the Identity Assertion Authorization Grant (ID-JAG) {{I-D.ietf-parecki-oauth-identity-assertion-authz-grant}}, where a client needs to seamlessly connect to cross-domain resources and act on behalf of the user to access APIs
+* Single Sign-On (SSO) to API flows, such as those enabled by the Identity Assertion Authorization Grant (ID-JAG) {{I-D.oauth-identity-assertion-authz-grant}}, where a client needs to seamlessly connect to cross-domain resources and act on behalf of the user to access APIs
 
 This specification provides the following benefits:
 
