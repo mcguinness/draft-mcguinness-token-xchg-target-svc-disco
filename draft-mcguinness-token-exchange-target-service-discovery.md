@@ -41,7 +41,7 @@ normative:
 
 informative:
   I-D.ietf-oauth-identity-chaining:
-  I-D.ietf-oauth-identity-assertion-authz-grant:
+  I-D.ietf-draft-parecki-oauth-identity-assertion-authz-grant:
 
 --- abstract
 
