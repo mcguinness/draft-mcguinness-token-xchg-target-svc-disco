@@ -40,6 +40,7 @@ normative:
   RFC8693:
 
 informative:
+  RFC2616:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
     title: OAuth 2.0 Identity Assertion JWT Authorization Grant
@@ -99,7 +100,7 @@ The client makes a request to the token exchange target service discovery endpoi
 
 The endpoint URL MUST be obtained from the Authorization Server's metadata document {{RFC8414}} using the `token_exchange_target_service_discovery_endpoint` parameter. The endpoint URL is an absolute URL as defined by {{RFC3986}}.
 
-The client sends the parameters using the `application/x-www-form-urlencoded` format per Appendix B of {{RFC6749}}.
+The client sends the parameters using the `application/x-www-form-urlencoded` format per Appendix B of {{RFC6749}}. Character encoding MUST be UTF-8 as specified in Appendix B of {{RFC6749}}. If a parameter is included more than once in the request, the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
 
 ### Request Parameters
 
@@ -109,17 +110,23 @@ subject_token
 : REQUIRED. The subject token used as input to discovery. The token type is indicated by the `subject_token_type` parameter.
 
 subject_token_type
-: REQUIRED. An identifier, as described in Section 5 of {{RFC8693}}, that indicates the type of the `subject_token` parameter. This identifier MUST be registered in the "OAuth Token Type Registry" as defined in Section 5.1 of {{RFC8693}}.
+: REQUIRED. A string value containing a URI, as described in Section 5 of {{RFC8693}}, that indicates the type of the `subject_token` parameter. This identifier MUST be a valid URI, as defined in {{RFC3986}}, and SHOULD be registered in the "OAuth Token Type Registry" as defined in Section 5.1 of {{RFC8693}}.
 
-The client MAY include additional parameters as defined by the OAuth 2.0 specification or extensions. Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in Section 2.3 of {{RFC6749}}.
+The client MAY include additional parameters as defined by extensions and the authorization server MUST ignore unknown parameters. 
+
+Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in Section 2.3 of {{RFC6749}}. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in Section 2.2.
 
 ### Subject Token Processing
 
 The authorization server MUST process the `subject_token` parameter according to the following rules:
 
-1. The authorization server MUST validate that the `subject_token_type` parameter indicates a supported token type.
+1. The authorization server MUST validate that the `subject_token` and `subject_token_type` parameters are not empty strings. If either parameter is an empty string, the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
 
-2. The authorization server MUST validate the `subject_token` according to the rules for the indicated token type. The validation process MUST verify:
+2. The authorization server MUST validate that the `subject_token_type` parameter is a valid URI per the URI validation requirements specified in Section 2.1.2. If the format is invalid (e.g., not a valid absolute URI or URN), the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
+
+3. The authorization server MUST determine whether it supports the indicated token type. This determination is an implementation decision and MAY be based on the authorization server's capabilities, the `subject_token` value, the authenticated client, or any combination thereof. If the `subject_token_type` is not supported by the authorization server for the given context, the authorization server MUST return an error response with the error code `unsupported_token_type` as described in Section 2.2.
+
+4. The authorization server MUST validate the `subject_token` according to the rules for the indicated token type. The validation process MUST verify:
    * The token is properly formatted for the indicated token type
    * The token's signature (if applicable) is valid and can be verified using the appropriate cryptographic keys
    * The token was issued by a trusted issuer
@@ -127,11 +134,9 @@ The authorization server MUST process the `subject_token` parameter according to
    * The token has not been revoked
    * The token is associated with the authenticated client, if client authentication is required
 
-3. If the `subject_token` is invalid for any reason (e.g., malformed, expired, revoked, or does not match the `subject_token_type`), the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
+5. If the `subject_token` is invalid for any reason (e.g., malformed, expired, revoked, or does not match the `subject_token_type`), the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
 
-4. If the `subject_token_type` is not supported by the authorization server, the authorization server MUST return an error response with the error code `unsupported_token_type` as described in Section 2.2.
-
-5. The authorization server MUST evaluate the `subject_token` in conjunction with the authenticated client's permissions to determine which target services are available for discovery.
+6. The authorization server MUST evaluate the `subject_token` in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or fields that would contain empty strings, as specified in Section 2.1.2.
 
 ### Request Example
 
@@ -149,6 +154,8 @@ The following is an example of a discovery request:
 
 The authorization server validates the request and returns a response with the discovery results. The response MUST use the `application/json` media type as specified in {{RFC7159}}. The `Content-Type` header of the response MUST be set to `application/json`.
 
+The authorization server MAY include HTTP cache validators (such as `ETag` or `Last-Modified` headers) and expiration times (such as `Cache-Control` or `Expires` headers) in the response to enable conditional requests by the client, as specified in Section 13 of {{RFC2616}}.
+
 ### Successful Response
 
 If the request is valid and authorized, the authorization server returns a JSON array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
@@ -156,18 +163,16 @@ If the request is valid and authorized, the authorization server returns a JSON 
 Each target service object contains the following fields:
 
 audience
-: OPTIONAL. A string indicating an available audience value for token exchange, as defined in Section 2.1 of {{RFC8693}}.
+: REQUIRED. A string value containing an absolute URI indicating an available audience value for token exchange, as defined in Section 2.1 of {{RFC8693}}. Empty strings are not supported and the response MUST contain an URI.
 
 resource
-: OPTIONAL. A string or array of strings indicating available resource indicator values, as defined in {{RFC8707}}.
-
-At least one of `audience` or `resource` MUST be present in each target service object. A target service object MAY specify both `audience` and `resource`.
+: OPTIONAL. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in Section 2 of {{RFC8707}}. In JSON, URI values are represented as strings. Empty strings are not supported. If present as a string, the string MUST contain a non-empty URI. If present as an array, the array MUST contain at least one non-empty URI string and MUST NOT be empty. If no resources are available for a target service, this field MUST be omitted from the response rather than including an empty string, empty array, or null value.
 
 scope
-: OPTIONAL. A space-delimited list of OAuth 2.0 scope values, as defined in Section 3.3 of {{RFC6749}}, that are available for this target service.
+: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in Section 3.3 of {{RFC6749}}, that are available for this target service. Each individual scope value in the list MUST conform to the scope syntax defined in Section 3.3 of {{RFC6749}}. Empty strings are not supported. If the field is present, the string MUST contain at least one non-empty scope value. If no scopes are available for a target service, this field MUST be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per Section 2.2 of {{RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a registered token type identifier from the "OAuth Token Type Registry" as defined in Section 5.1 of {{RFC8693}}. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI, as defined in {{RFC3986}}. Empty strings are not supported; array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this field MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
 
 If no target services are available for the given subject token and client, the authorization server returns an empty array `[]`.
 
@@ -195,6 +200,7 @@ The following is an example of a successful discovery response:
         ]
       },
       {
+        "audience": "https://api.example.com",
         "resource": ["https://api.example.com/reports"],
         "scope": "reports.read",
         "supported_token_types": [
@@ -205,25 +211,28 @@ The following is an example of a successful discovery response:
 
 ## Error Response
 
-If the request failed, the authorization server returns an error response as defined in Section 5.2 of {{RFC6749}}. The response MUST use the `application/json` media type, and the `Content-Type` header MUST be set to `application/json`. The following error codes may be returned:
+If the request failed, the authorization server returns an error response as defined in Section 5.2 of {{RFC6749}}. The response MUST use the `application/json` media type, and the `Content-Type` header MUST be set to `application/json`. The HTTP status code MUST be set according to the error code, as specified below and in Section 5.2 of {{RFC6749}}. The following error codes may be returned:
 
 invalid_request
-: The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed. This error code is also returned when the provided subject token is invalid, expired, revoked, or does not match the subject token type, or when another error condition occurred during token validation.
+: The request is missing a required parameter, includes an invalid parameter value (such as an invalid URI format for `subject_token_type` or an empty string for `subject_token` or `subject_token_type`), includes a parameter more than once, or is otherwise malformed. This error code is also returned when the provided subject token is invalid, expired, revoked, or does not match the subject token type, or when another error condition occurred during token validation. The HTTP status code MUST be 400 (Bad Request).
 
 invalid_client
-: Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).
+: Client authentication failed (e.g., unknown client, no client authentication included when required, or unsupported authentication method). This error code MUST be returned when client authentication is required by the authorization server but not provided in the request. The HTTP status code MUST be 401 (Unauthorized).
 
 unauthorized_client
-: The authenticated client is not authorized to use this discovery endpoint.
+: The authenticated client is not authorized to use this discovery endpoint. The HTTP status code MUST be 403 (Forbidden).
 
 unsupported_token_type
-: The authorization server does not support the subject token type indicated by the `subject_token_type` parameter.
+: The authorization server does not support the subject token type indicated by the `subject_token_type` parameter. The HTTP status code MUST be 400 (Bad Request).
+
+invalid_scope
+: The request includes an invalid scope parameter. The HTTP status code MUST be 400 (Bad Request).
 
 server_error
-: The authorization server encountered an unexpected condition that prevented it from fulfilling the request.
+: The authorization server encountered an unexpected condition that prevented it from fulfilling the request. The HTTP status code MUST be 500 (Internal Server Error).
 
 temporarily_unavailable
-: The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.
+: The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server. The HTTP status code MUST be 503 (Service Unavailable).
 
 ### Error Response Example
 
@@ -362,11 +371,11 @@ If any validation fails, the authorization server MUST return an `invalid_reques
 
 ## Client Authentication
 
-The authorization server SHOULD require client authentication for the discovery endpoint to prevent unauthorized access to authorization information. The authorization server MUST support at least one of the client authentication methods defined in Section 2.3 of {{RFC6749}}.
+The authorization server SHOULD require client authentication for the discovery endpoint to prevent unauthorized access to authorization information. The authorization server MUST support at least one of the client authentication methods defined in Section 2.3 of {{RFC6749}}. If client authentication is required but not provided, the authorization server MUST return an error response with the error code `invalid_client` as described in Section 2.2.
 
 ## Authorization Policy Enforcement
 
-The authorization server MUST evaluate both the subject token and the client's permissions when determining which target services to return. The server MUST only return target services that the client is authorized to request in a subsequent token exchange operation.
+The authorization server MUST evaluate both the subject token and the client's permissions when determining which target services to return. The server MUST only return target services that the client is authorized to request in a subsequent token exchange operation. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, attribute-based access control, or other authorization models supported by the authorization server.
 
 ## Information Disclosure
 
