@@ -112,7 +112,7 @@ subject_token
 subject_token_type
 : REQUIRED. A string value containing a URI, as described in Section 5 of {{RFC8693}}, that indicates the type of the `subject_token` parameter. This identifier MUST be a valid URI, as defined in {{RFC3986}}, and SHOULD be registered in the "OAuth Token Type Registry" as defined in Section 5.1 of {{RFC8693}}.
 
-The client MAY include additional parameters as defined by extensions and the authorization server MUST ignore unknown parameters. 
+The client MAY include additional parameters as defined by extensions and the authorization server MUST ignore unknown parameters.
 
 Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in Section 2.3 of {{RFC6749}}. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in Section 2.2.
 
