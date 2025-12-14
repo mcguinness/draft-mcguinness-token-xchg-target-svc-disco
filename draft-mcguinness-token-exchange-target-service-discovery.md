@@ -189,22 +189,21 @@ The following is an example of a successful discovery response:
         "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
         "scope": "orders.read inventory.read",
         "supported_token_types": [
-          "urn:ietf:params:oauth:token-type:jwt-bearer"
+          "urn:ietf:params:oauth:token-type:access_token"
         ]
       },
       {
-        "audience": "https://api.example.com",
-        "scope": "analytics.read",
+        "audience": "https://billing.provider.example",
+        "scope": "customer.read customer.write",
         "supported_token_types": [
           "urn:ietf:params:oauth:token-type:jwt-bearer"
         ]
       },
       {
-        "audience": "https://api.example.com",
-        "resource": ["https://api.example.com/reports"],
-        "scope": "reports.read",
+        "audience": "https://backend-audit-service.example.com",
+        "scope": "audit.read audit.write",
         "supported_token_types": [
-          "urn:ietf:params:oauth:token-type:jwt-bearer"
+          "urn:ietf:params:oauth:token-type:access_token"
         ]
       }
     ]
