@@ -5,8 +5,8 @@
 Network Working Group                                      K. McGuinness
 Internet-Draft                                               Independent
 Intended status: Standards Track                              A. Parecki
-Expires: 16 June 2026                                               Okta
-                                                        13 December 2025
+Expires: 17 June 2026                                               Okta
+                                                        14 December 2025
 
 
            OAuth 2.0 Token Exchange Target Service Discovery
@@ -53,7 +53,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 June 2026.
+   This Internet-Draft will expire on 17 June 2026.
 
 Copyright Notice
 
@@ -403,22 +403,21 @@ Content-Type: application/json
     "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
     "scope": "orders.read inventory.read",
     "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+      "urn:ietf:params:oauth:token-type:access_token"
     ]
   },
   {
-    "audience": "https://api.example.com",
-    "scope": "analytics.read",
+    "audience": "https://billing.provider.example",
+    "scope": "customer.read customer.write",
     "supported_token_types": [
       "urn:ietf:params:oauth:token-type:jwt-bearer"
     ]
   },
   {
-    "audience": "https://api.example.com",
-    "resource": ["https://api.example.com/reports"],
-    "scope": "reports.read",
+    "audience": "https://backend-audit-service.example.com",
+    "scope": "audit.read audit.write",
     "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+      "urn:ietf:params:oauth:token-type:access_token"
     ]
   }
 ]

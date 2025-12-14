@@ -1052,7 +1052,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness &amp; Parecki</td>
-<td class="center">Expires 16 June 2026</td>
+<td class="center">Expires 17 June 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1065,12 +1065,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-mcguinness-token-exchange-target-service-discovery-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-12-13" class="published">13 December 2025</time>
+<time datetime="2025-12-14" class="published">14 December 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-06-16">16 June 2026</time></dd>
+<dd class="expires"><time datetime="2026-06-17">17 June 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1119,7 +1119,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 June 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 17 June 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1494,22 +1494,21 @@ Content-Type: application/json
     "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
     "scope": "orders.read inventory.read",
     "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+      "urn:ietf:params:oauth:token-type:access_token"
     ]
   },
   {
-    "audience": "https://api.example.com",
-    "scope": "analytics.read",
+    "audience": "https://billing.provider.example",
+    "scope": "customer.read customer.write",
     "supported_token_types": [
       "urn:ietf:params:oauth:token-type:jwt-bearer"
     ]
   },
   {
-    "audience": "https://api.example.com",
-    "resource": ["https://api.example.com/reports"],
-    "scope": "reports.read",
+    "audience": "https://backend-audit-service.example.com",
+    "scope": "audit.read audit.write",
     "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
+      "urn:ietf:params:oauth:token-type:access_token"
     ]
   }
 ]
