@@ -1,0 +1,107 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2025-12-14T01:01:00.890199+00:00",
+  "repo": "mcguinness/draft-mcguinness-token-exchange-target-service-discovery",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOQmXELM7eF5QN",
+      "title": "Add supported_grant_type",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-exchange-target-service-discovery/issues/1",
+      "state": "OPEN",
+      "author": "meghnadubey",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Add supported_grant_type of token-exchange to the response. This is the basic mechanism, hence should be to stated in discovery enumeration, in addition to the outcome or token-type which is already present as jwt-bearer. ",
+      "createdAt": "2025-12-13T15:29:53Z",
+      "updatedAt": "2025-12-13T20:31:45Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "The spec is currently written as a Token Exchange service discovery endpoint.  I am not clear on why adding `urn:ietf:params:oauth:grant-type:token-exchange` to the service response object has any value.  The Authorization Server metadata for the AS already publishes this.  Additionally it would be present on every service object making it redundant.\n\nA client would fetch AS metadata and validate whether the AS supports `urn:ietf:params:oauth:grant-type:token-exchange` grant type then validate whether it published a `token_exchange_target_service_discovery_endpoint` and then perform discovery of token exchange targets. \n\nThis spec _currently_ isn't for an Authorization Server to return trusted issuers for assertion grants (reverse relationship).  I can see value in defining that endpoint but it would need different inputs (e.g client authentication only) and would have a different shape.  \n\n",
+          "createdAt": "2025-12-13T16:33:01Z",
+          "updatedAt": "2025-12-13T16:33:01Z"
+        },
+        {
+          "author": "meghnadubey",
+          "authorAssociation": "NONE",
+          "body": "The value for `supported_token_type` will also be jwt-bearer for every object, since it is the result of id-jag token exchange. So that is also repeated for every target object. \nI suggest changing the API response to an object, and making `supported_token_type` a property of this object, and defining an array of target objects containing `{audience, resource, scope}`. \nComing back to the original suggestion, for the sake of completeness, even though this is a token exchange target discovery, I see value in adding grant-type as it reinforces the mechanism of reaching the listed targets. And also something like an `assertion-type` to indicate supported assertions that can be used to get this jwt-bearer.(as a property of the response object, not the target object).",
+          "createdAt": "2025-12-13T18:01:03Z",
+          "updatedAt": "2025-12-13T18:01:03Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "> The value for `supported_token_type` will also be jwt-bearer for every object\n\nThe AS can return any token type identifier it supports for a target service, it doesn't have to be jwt-bearer token type or an assertion.  I just used that in the example as its most common.   \n\nThe target service also doesn't have to be external to the AS (federated) and could be 1st party so the target token type could be an access token for example (e.g middle tier micro-service to backend service).  There could be also be vendor specific token types.  \n\nThis endpoint is generic to Token Exchange and not specific to ID-JAG or cross-domain use cases. ",
+          "createdAt": "2025-12-13T18:09:15Z",
+          "updatedAt": "2025-12-13T18:09:15Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Does this example response help make this clearer?\n\n```\n    [\n      {\n        \"audience\": \"https://api.example.com\",\n        \"resource\": [\"https://api.example.com/orders\", \"https://api.example.com/inventory\"],\n        \"scope\": \"orders.read inventory.read\",\n        \"supported_token_types\": [\n          \"urn:ietf:params:oauth:token-type:access_token\"\n        ]\n      },\n      {\n        \"audience\": \"https://billing.provider.example\",\n        \"scope\": \"customer.read customer.write\",\n        \"supported_token_types\": [\n          \"urn:ietf:params:oauth:token-type:jwt-bearer\"\n        ]\n      },\n      {\n        \"audience\": \"https://backend-audit-service.example.com\",\n        \"scope\": \"audit.read audit.write\",\n        \"supported_token_types\": [\n          \"urn:ietf:params:oauth:token-type:access_token\"\n        ]\n      }\n    ]\n```",
+          "createdAt": "2025-12-13T18:29:26Z",
+          "updatedAt": "2025-12-13T18:29:26Z"
+        },
+        {
+          "author": "meghnadubey",
+          "authorAssociation": "NONE",
+          "body": "Yes, this is a better representation. ",
+          "createdAt": "2025-12-13T20:31:45Z",
+          "updatedAt": "2025-12-13T20:31:45Z"
+        }
+      ]
+    }
+  ],
+  "pulls": []
+}
