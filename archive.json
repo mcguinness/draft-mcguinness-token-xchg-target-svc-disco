@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-12-14T01:01:00.890199+00:00",
+  "timestamp": "2025-12-16T00:57:03.355994+00:00",
   "repo": "mcguinness/draft-mcguinness-token-exchange-target-service-discovery",
   "labels": [
     {
@@ -55,15 +55,15 @@
       "id": "I_kwDOQmXELM7eF5QN",
       "title": "Add supported_grant_type",
       "url": "https://github.com/mcguinness/draft-mcguinness-token-exchange-target-service-discovery/issues/1",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "meghnadubey",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "Add supported_grant_type of token-exchange to the response. This is the basic mechanism, hence should be to stated in discovery enumeration, in addition to the outcome or token-type which is already present as jwt-bearer. ",
       "createdAt": "2025-12-13T15:29:53Z",
-      "updatedAt": "2025-12-13T20:31:45Z",
-      "closedAt": null,
+      "updatedAt": "2025-12-14T18:24:21Z",
+      "closedAt": "2025-12-14T18:24:21Z",
       "comments": [
         {
           "author": "mcguinness",
@@ -99,6 +99,13 @@
           "body": "Yes, this is a better representation. ",
           "createdAt": "2025-12-13T20:31:45Z",
           "updatedAt": "2025-12-13T20:31:45Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Resolving this issue with updated example",
+          "createdAt": "2025-12-14T18:24:21Z",
+          "updatedAt": "2025-12-14T18:24:21Z"
         }
       ]
     }
