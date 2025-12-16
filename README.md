@@ -4,16 +4,16 @@
 
 This is the working area for the individual Internet-Draft, "OAuth 2.0 Token Exchange Target Service Discovery".
 
-* [Editor's Copy](https://mcguinness.github.io/draft-mcguinness-token-exchange-target-service-discovery/#go.draft-mcguinness-token-exchange-target-service-discovery.html)
-* [Datatracker Page](https://datatracker.ietf.org/doc/draft-mcguinness-token-exchange-target-service-discovery)
-* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-mcguinness-token-exchange-target-service-discovery)
-* [Compare Editor's Copy to Individual Draft](https://mcguinness.github.io/draft-mcguinness-token-exchange-target-service-discovery/#go.draft-mcguinness-token-exchange-target-service-discovery.diff)
+* [Editor's Copy](https://mcguinness.github.io/draft-mcguinness-token-xchg-target-svc-disco/#go.draft-mcguinness-token-xchg-target-svc-disco.html)
+* [Datatracker Page](https://datatracker.ietf.org/doc/draft-mcguinness-token-xchg-target-svc-disco)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-mcguinness-token-xchg-target-svc-disco)
+* [Compare Editor's Copy to Individual Draft](https://mcguinness.github.io/draft-mcguinness-token-xchg-target-svc-disco/#go.draft-mcguinness-token-xchg-target-svc-disco.diff)
 
 
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/mcguinness/draft-mcguinness-token-exchange-target-service-discovery/blob/main/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/blob/main/CONTRIBUTING.md).
 
 The contributing file also has tips on how to make contributions, if you
 don't already know how to do that.
