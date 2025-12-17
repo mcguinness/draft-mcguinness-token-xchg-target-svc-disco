@@ -137,7 +137,7 @@ The authorization server MUST process the `subject_token` parameter according to
 
 5. If the `subject_token` is invalid for any reason (e.g., malformed, expired, revoked, or does not match the `subject_token_type`), the authorization server MUST return an error response with the error code `invalid_request` as described in Section 2.2.
 
-6. The authorization server MUST evaluate the `subject_token` in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or fields that would contain empty strings, as specified in Section 2.1.2.
+6. The authorization server MUST evaluate the `subject_token` in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or properties that would contain empty strings, as specified in Section 2.1.2.
 
 ### Request Example
 
@@ -159,25 +159,25 @@ The authorization server MAY include HTTP cache validators (such as `ETag` or `L
 
 ### Successful Response
 
-If the request is valid and authorized, the authorization server returns a JSON array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
+If the request is valid and authorized, the authorization server returns a JSON object containing a `supported_targets` property. The `supported_targets` property is an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
 
-Each target service object contains the following fields:
+Each target service object contains the following properties:
 
 audience
-: REQUIRED. A string value containing an absolute URI indicating an available audience value for token exchange, as defined in Section 2.1 of {{RFC8693}}. Empty strings are not supported and the response MUST contain an URI. If the `audience` value is a URI but not a URL (e.g., a URN) and does not provide a location, the authorization server SHOULD return a `resource` field that contains a location.
+: REQUIRED. A string value containing an absolute URI indicating an available audience value for token exchange, as defined in Section 2.1 of {{RFC8693}}. Empty strings are not supported and the response MUST contain an URI. If the `audience` value is a URI but not a URL (e.g., a URN) and does not provide a location, the authorization server SHOULD return a `resource` property that contains a location.
 
 resource
-: OPTIONAL. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in Section 2 of {{RFC8707}}. In JSON, URI values are represented as strings. Empty strings are not supported. If present as a string, the string MUST contain a non-empty URI. If present as an array, the array MUST contain at least one non-empty URI string and MUST NOT be empty. If no resources are available for a target service, this field MUST be omitted from the response rather than including an empty string, empty array, or null value.
+: OPTIONAL. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in Section 2 of {{RFC8707}}. In JSON, URI values are represented as strings. Empty strings are not supported. If present as a string, the string MUST contain a non-empty URI. If present as an array, the array MUST contain at least one non-empty URI string and MUST NOT be empty. If no resources are available for a target service, this property MUST be omitted from the response rather than including an empty string, empty array, or null value.
 
 scope
-: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in Section 3.3 of {{RFC6749}}, that are available for this target service. Each individual scope value in the list MUST conform to the scope syntax defined in Section 3.3 of {{RFC6749}}. Empty strings are not supported. If the field is present, the string MUST contain at least one non-empty scope value. If no scopes are available for a target service, this field MUST be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per Section 2.2 of {{RFC8693}}.
+: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in Section 3.3 of {{RFC6749}}, that are available for this target service. Each individual scope value in the list MUST conform to the scope syntax defined in Section 3.3 of {{RFC6749}}. Empty strings are not supported. If the property is present, the string MUST contain at least one non-empty scope value. If no scopes are available for a target service, this property MUST be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per Section 2.2 of {{RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI, as defined in {{RFC3986}}. Empty strings are not supported; array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this field MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI, as defined in {{RFC3986}}. Empty strings are not supported; array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this property MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
 
-Multiple target service objects for the same audience MAY be returned with different resource(s) and scopes. The combination of `audience` and `resource` (the entire set of resources, when present) MUST be unique within the target service array. That is, no two objects in the array may have both the same `audience` value and the same set of `resource` values (when comparing arrays, the order of elements does not matter, but the complete set must match).
+Multiple target service objects for the same audience MAY be returned with different resource(s) and scopes. The combination of `audience` and `resource` (the entire set of resources, when present) MUST be unique within the `supported_targets` array. That is, no two objects in the `supported_targets` array may have both the same `audience` value and the same set of `resource` values (when comparing arrays, the order of elements does not matter, but the complete set must match).
 
-If no target services are available for the given subject token and client, the authorization server returns an empty array `[]`.
+If no target services are available for the given subject token and client, the authorization server returns a JSON object with an empty `supported_targets` array: `{"supported_targets": []}`.
 
 ### Response Example
 
@@ -186,7 +186,8 @@ The following is an example of a successful discovery response:
     HTTP/1.1 200 OK
     Content-Type: application/json
 
-    [
+    {
+      "supported_targets": [
       {
         "audience": "https://api.example.com",
         "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
@@ -209,7 +210,8 @@ The following is an example of a successful discovery response:
           "urn:ietf:params:oauth:token-type:access_token"
         ]
       }
-    ]
+      ]
+    }
 
 ## Error Response
 
@@ -273,7 +275,8 @@ The client begins with a subject access token issued by Domain A and calls the t
     HTTP/1.1 200 OK
     Content-Type: application/json
 
-    [
+    {
+      "supported_targets": [
       {
         "audience": "https://api.domainB.example",
         "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
@@ -282,7 +285,8 @@ The client begins with a subject access token issued by Domain A and calls the t
           "urn:ietf:params:oauth:token-type:jwt-bearer"
         ]
       }
-    ]
+      ]
+    }
 
 From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that JWT bearer tokens are supported for this target service.
 
@@ -430,5 +434,5 @@ Specification Document(s): [[ this document ]]
 # Acknowledgments
 {:numbered="false"}
 
-TODO acknowledge.
+The authors would like to thank the following individuals who contributed ideas, feedback, and wording that helped shape this specification: Max Gerber
 
