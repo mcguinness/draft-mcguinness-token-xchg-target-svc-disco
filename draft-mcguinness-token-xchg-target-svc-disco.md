@@ -91,7 +91,7 @@ This specification provides the following benefits:
 
 # Token Exchange Target Service Discovery Endpoint
 
-This specification defines a new endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
+This specification defines a new authenticated endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
 
 The endpoint is identified by the Authorization Server metadata parameter `token_exchange_target_service_discovery_endpoint`, as defined in Section 7.
 
@@ -115,7 +115,7 @@ subject_token_type
 
 The client MAY include additional parameters as defined by extensions and the authorization server MUST ignore unknown parameters.
 
-Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in Section 2.3 of {{RFC6749}}. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in Section 2.2.
+Client authentication MUST be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in Section 2.3 of {{RFC6749}}.
 
 ### Subject Token Processing
 
@@ -149,6 +149,8 @@ The following is an example of a discovery request:
 
     subject_token=SlAV32hkKG...ACCESSTOKEN...
     &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+    &client_id=<>
+    &client_secret=<>
 
 
 ## Endpoint Response
