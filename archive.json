@@ -1,7 +1,7 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-12-16T00:57:03.355994+00:00",
-  "repo": "mcguinness/draft-mcguinness-token-exchange-target-service-discovery",
+  "timestamp": "2025-12-18T00:53:45.424585+00:00",
+  "repo": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
   "labels": [
     {
       "name": "bug",
@@ -54,7 +54,7 @@
       "number": 1,
       "id": "I_kwDOQmXELM7eF5QN",
       "title": "Add supported_grant_type",
-      "url": "https://github.com/mcguinness/draft-mcguinness-token-exchange-target-service-discovery/issues/1",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/issues/1",
       "state": "CLOSED",
       "author": "meghnadubey",
       "authorAssociation": "NONE",
@@ -108,7 +108,78 @@
           "updatedAt": "2025-12-14T18:24:21Z"
         }
       ]
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOQmXELM7e-rem",
+      "title": "Role of Oauth2.0 authorization server as IDP",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/issues/4",
+      "state": "OPEN",
+      "author": "sdesen",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I view the issue of discovery for the token exchange grant type as very broad. Not only can the downstream service and resulting token type be discovered, but also the method of token exchange and intermediary token types supported.  \n\nhttps://www.ietf.org/archive/id/draft-ietf-oauth-identity-assertion-authz-grant-01.html#name-authorization-server-idp-me specifies for example introduces `identity_chaining_requested_token_types_supported` as a means of understanding intermediary token types supported.\n\ntoken A -> exchanged for  token B -> exchanged for token C -> exchanged for token D....\n\nThis specification currently supports a scenario where a client can find which eventual audiences the authorization server would issue intermediary tokens for - not what type of tokens these are, or \n\nIt seems purpose built but also not broad enough for general token exchange use cases. One issue is that https://datatracker.ietf.org/doc/html/rfc8693 does not require audience as a parameter in the request, yet the response assumes the audience field will be useful to the client and reference 2.1 of token exchange RFC.\n\n\nI propose a couple solutions, one which is to describe the `audience` in this specification response as the intended authorization server issuer for which the intermediary token is to be sent, or another which is to specify that when an Authz Server is behaving as an IDP, this specificaiton should apply and make it more purpose-built.\n\n",
+      "createdAt": "2025-12-18T00:47:43Z",
+      "updatedAt": "2025-12-18T00:47:43Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 2,
+      "id": "PR_kwDOQmXELM65bNFB",
+      "title": "Endpoint Response as object for extensibility",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/pull/2",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-12-17T18:06:54Z",
+      "updatedAt": "2025-12-17T18:33:56Z",
+      "baseRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
+      "baseRefName": "main",
+      "baseRefOid": "39addcf1bd935bbdb53deb3f62c9405776afb68c",
+      "headRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
+      "headRefName": "response-object",
+      "headRefOid": "f26fe438de13078e10b3579b94b46df7381d6eb8",
+      "closedAt": "2025-12-17T18:33:56Z",
+      "mergedAt": "2025-12-17T18:33:56Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "39e4886efc75063f91a8ba0988402c8dcabd02c6"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 3,
+      "id": "PR_kwDOQmXELM65ej8b",
+      "title": "WIP on requiring client auth",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/pull/3",
+      "state": "OPEN",
+      "author": "sdesen",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I strongly feel client authentication should be required, or at a minumum replace MAY with SHOULD. This is because the attack surface for a stolen subject token widens dramatically as a malicious actor could discover downstream services, and more insecure implementations of token exchange may not require client authentication during the actual exchange.",
+      "createdAt": "2025-12-18T00:28:45Z",
+      "updatedAt": "2025-12-18T00:48:00Z",
+      "baseRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
+      "baseRefName": "main",
+      "baseRefOid": "39e4886efc75063f91a8ba0988402c8dcabd02c6",
+      "headRepository": "sdesen/draft-mcguinness-token-exchange-target-service-discovery",
+      "headRefName": "client-auth",
+      "headRefOid": "d8a6346c9b5fda85669dabe2b2e963618bf53f26",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
