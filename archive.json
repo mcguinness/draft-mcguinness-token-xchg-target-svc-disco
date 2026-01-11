@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-12-21T01:00:47.488840+00:00",
+  "timestamp": "2026-01-11T01:03:45.139551+00:00",
   "repo": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
   "labels": [
     {
@@ -138,6 +138,22 @@
       "body": "Adding `amr` can provide valuable information to the client about essential `mfa` (step-up auth), other policy requirements. This can help avoid errors due to authentication context not meeting resource access policy. ",
       "createdAt": "2025-12-18T18:38:24Z",
       "updatedAt": "2025-12-18T18:38:24Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOQmXELM7iXLZP",
+      "title": "Allow adapting this token exchange metadata spec to specific token exchange cases like ID-JAG by introducing custom/flex object",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/issues/6",
+      "state": "OPEN",
+      "author": "meghnadubey",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Allowing for a custom object ensures that the discovery spec can be a complete solution for specific token exchange cases like ID-JAG. \nFor example, in the case of ID-JAG, including a `client-id` for the resource in IdP can help with resolution or establishment of the access context in the RS.\n",
+      "createdAt": "2026-01-09T17:19:10Z",
+      "updatedAt": "2026-01-09T17:21:36Z",
       "closedAt": null,
       "comments": []
     }
