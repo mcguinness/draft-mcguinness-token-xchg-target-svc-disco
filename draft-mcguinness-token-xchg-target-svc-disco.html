@@ -23,14 +23,14 @@
     Python 3.12.12
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 5.3.1
-    platformdirs 4.5.0
+    lxml 6.0.2
+    platformdirs 4.5.1
     pycountry 24.6.1
-    PyYAML 6.0.2
+    PyYAML 6.0.3
     requests 2.32.5
-    wcwidth 0.2.14
+    wcwidth 0.3.0
 -->
 <link href="draft-mcguinness-token-xchg-target-svc-disco.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -171,7 +171,7 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -179,7 +179,8 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 }
 
 @font-face {
@@ -571,6 +572,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -641,7 +643,7 @@ a.pilcrow {
   }
 }
 @media not print {
-  :hover > a.pilcrow {
+  :hover > a.pilcrow, a.pilcrow:focus {
     opacity: 1;
   }
   a.pilcrow[href]:hover {
@@ -1049,11 +1051,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Token Exchange Target Service Discovery"</td>
-<td class="right">December 2025</td>
+<td class="right">February 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">McGuinness &amp; Parecki</td>
-<td class="center">Expires 20 June 2026</td>
+<td class="center">Expires 18 August 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1068,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-mcguinness-token-xchg-target-svc-disco-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-12-17" class="published">17 December 2025</time>
+<time datetime="2026-02-14" class="published">14 February 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-06-20">20 June 2026</time></dd>
+<dd class="expires"><time datetime="2026-08-18">18 August 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1125,7 +1127,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 June 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 18 August 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1134,7 +1136,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1345,15 +1347,15 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-token-exchange-target-servi" class="section-name selfRef">Token Exchange Target Service Discovery Endpoint</a>
       </h2>
 <p id="section-3-1">This specification defines a new endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The endpoint is identified by the Authorization Server metadata parameter <code>token_exchange_target_service_discovery_endpoint</code>, as defined in Section 7.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">The endpoint is identified by the Authorization Server metadata parameter <code>token_exchange_target_service_discovery_endpoint</code>, as defined in <a href="#authorization-server-metadata" class="auto internal xref">Section 5</a>.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <div id="endpoint-request">
 <section id="section-3.1">
         <h3 id="name-endpoint-request">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-endpoint-request" class="section-name selfRef">Endpoint Request</a>
         </h3>
-<p id="section-3.1-1">The client makes a request to the token exchange target service discovery endpoint by sending an HTTP POST request to the endpoint URL. The client <span class="bcp14">MUST</span> use TLS as specified in Section 1.6 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">The endpoint URL <span class="bcp14">MUST</span> be obtained from the Authorization Server's metadata document <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> using the <code>token_exchange_target_service_discovery_endpoint</code> parameter. The endpoint URL is an absolute URL as defined by <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
-<p id="section-3.1-3">The client sends the parameters using the <code>application/x-www-form-urlencoded</code> format per Appendix B of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. Character encoding <span class="bcp14">MUST</span> be UTF-8 as specified in Appendix B of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. If a parameter is included more than once in the request, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in Section 2.2.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">The client makes a request to the token exchange target service discovery endpoint by sending an HTTP POST request to the endpoint URL. The client <span class="bcp14">MUST</span> use TLS as specified in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-1.6" class="relref">Section 1.6</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">The endpoint URL <span class="bcp14">MUST</span> be obtained from the Authorization Server's metadata document <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> using the <code>token_exchange_target_service_discovery_endpoint</code> parameter. The endpoint URL is an absolute URL.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">The client sends the parameters using the <code>application/x-www-form-urlencoded</code> format per Appendix B of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. Character encoding <span class="bcp14">MUST</span> be UTF-8 as specified in Appendix B of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. If a parameter is included more than once in the request, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <div id="request-parameters">
 <section id="section-3.1.1">
           <h4 id="name-request-parameters">
@@ -1368,12 +1370,12 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
             <dd class="break"></dd>
 <dt id="section-3.1.1-2.3">subject_token_type</dt>
             <dd style="margin-left: 1.5em" id="section-3.1.1-2.4">
-              <p id="section-3.1.1-2.4.1"><span class="bcp14">REQUIRED</span>. A string value containing a URI, as described in Section 5 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, that indicates the type of the <code>subject_token</code> parameter. This identifier <span class="bcp14">MUST</span> be a valid URI, as defined in <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>, and <span class="bcp14">SHOULD</span> be registered in the "OAuth Token Type Registry" as defined in Section 5.1 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-3.1.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.1-2.4.1"><span class="bcp14">REQUIRED</span>. A string value containing a URI, as described in <span><a href="https://rfc-editor.org/rfc/rfc8693#section-3" class="relref">Section 3</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, that indicates the type of the <code>subject_token</code> parameter. This identifier <span class="bcp14">MUST</span> be a valid URI, and <span class="bcp14">SHOULD</span> be registered in the "OAuth URI Registry" as established by <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span>.<a href="#section-3.1.1-2.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
 <p id="section-3.1.1-3">The client <span class="bcp14">MAY</span> include additional parameters as defined by extensions and the authorization server <span class="bcp14">MUST</span> ignore unknown parameters.<a href="#section-3.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-3.1.1-4">Client authentication <span class="bcp14">MAY</span> be required by the authorization server. The means of client authentication are defined by the authorization server and <span class="bcp14">MAY</span> include any method supported by the authorization server, including those defined in Section 2.3 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. If client authentication is required by the authorization server but not provided in the request, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_client</code> as described in Section 2.2.<a href="#section-3.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1.1-4">Client authentication <span class="bcp14">MAY</span> be required by the authorization server. The means of client authentication are defined by the authorization server and <span class="bcp14">MAY</span> include any method supported by the authorization server, including those defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.3" class="relref">Section 2.3</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> and extensions. If client authentication is required by the authorization server but not provided in the request, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_client</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="subject-token-processing">
@@ -1384,13 +1386,13 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-3.1.2-1">The authorization server <span class="bcp14">MUST</span> process the <code>subject_token</code> parameter according to the following rules:<a href="#section-3.1.2-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-3.1.2-2">
 <li id="section-3.1.2-2.1">
-              <p id="section-3.1.2-2.1.1">The authorization server <span class="bcp14">MUST</span> validate that the <code>subject_token</code> and <code>subject_token_type</code> parameters are not empty strings. If either parameter is an empty string, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in Section 2.2.<a href="#section-3.1.2-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.2-2.1.1">The authorization server <span class="bcp14">MUST</span> validate that the <code>subject_token</code> and <code>subject_token_type</code> parameters are not empty strings. If either parameter is an empty string, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-3.1.2-2.2">
-              <p id="section-3.1.2-2.2.1">The authorization server <span class="bcp14">MUST</span> validate that the <code>subject_token_type</code> parameter is a valid URI per the URI validation requirements specified in Section 2.1.2. If the format is invalid (e.g., not a valid absolute URI or URN), the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in Section 2.2.<a href="#section-3.1.2-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.2-2.2.1">The authorization server <span class="bcp14">MUST</span> validate that the <code>subject_token_type</code> parameter is a valid URI. If the format is invalid (e.g., not a valid absolute URI or URN), the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-3.1.2-2.3">
-              <p id="section-3.1.2-2.3.1">The authorization server <span class="bcp14">MUST</span> determine whether it supports the indicated token type. This determination is an implementation decision and <span class="bcp14">MAY</span> be based on the authorization server's capabilities, the <code>subject_token</code> value, the authenticated client, or any combination thereof. If the <code>subject_token_type</code> is not supported by the authorization server for the given context, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>unsupported_token_type</code> as described in Section 2.2.<a href="#section-3.1.2-2.3.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.2-2.3.1">The authorization server <span class="bcp14">MUST</span> determine whether it supports the indicated token type. This determination is an implementation decision and <span class="bcp14">MAY</span> be based on the authorization server's capabilities, the <code>subject_token</code> value, the authenticated client, or any combination thereof. If the <code>subject_token_type</code> is not supported by the authorization server for the given context, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>unsupported_token_type</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-3.1.2-2.4">
               <p id="section-3.1.2-2.4.1">The authorization server <span class="bcp14">MUST</span> validate the <code>subject_token</code> according to the rules for the indicated token type. The validation process <span class="bcp14">MUST</span> verify:<a href="#section-3.1.2-2.4.1" class="pilcrow">¶</a></p>
@@ -1416,10 +1418,10 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
               </ul>
 </li>
             <li id="section-3.1.2-2.5">
-              <p id="section-3.1.2-2.5.1">If the <code>subject_token</code> is invalid for any reason (e.g., malformed, expired, revoked, or does not match the <code>subject_token_type</code>), the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in Section 2.2.<a href="#section-3.1.2-2.5.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.2-2.5.1">If the <code>subject_token</code> is invalid for any reason (e.g., malformed, expired, revoked, or does not match the <code>subject_token_type</code>), the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_request</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-3.1.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-3.1.2-2.6">
-              <p id="section-3.1.2-2.6.1">The authorization server <span class="bcp14">MUST</span> evaluate the <code>subject_token</code> in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and <span class="bcp14">MAY</span> be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server <span class="bcp14">MUST</span> omit any target service objects or properties that would contain empty strings, as specified in Section 2.1.2.<a href="#section-3.1.2-2.6.1" class="pilcrow">¶</a></p>
+              <p id="section-3.1.2-2.6.1">The authorization server <span class="bcp14">MUST</span> evaluate the <code>subject_token</code> in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and <span class="bcp14">MAY</span> be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server <span class="bcp14">MUST</span> omit any target service objects or properties that would contain empty strings.<a href="#section-3.1.2-2.6.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -1449,34 +1451,34 @@ subject_token=SlAV32hkKG...ACCESSTOKEN...
         <h3 id="name-endpoint-response">
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-endpoint-response" class="section-name selfRef">Endpoint Response</a>
         </h3>
-<p id="section-3.2-1">The authorization server validates the request and returns a response with the discovery results. The response <span class="bcp14">MUST</span> use the <code>application/json</code> media type as specified in <span>[<a href="#RFC7159" class="cite xref">RFC7159</a>]</span>. The <code>Content-Type</code> header of the response <span class="bcp14">MUST</span> be set to <code>application/json</code>.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">The authorization server <span class="bcp14">MAY</span> include HTTP cache validators (such as <code>ETag</code> or <code>Last-Modified</code> headers) and expiration times (such as <code>Cache-Control</code> or <code>Expires</code> headers) in the response to enable conditional requests by the client, as specified in Section 13 of <span>[<a href="#RFC2616" class="cite xref">RFC2616</a>]</span>.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">The authorization server validates the request and returns a response with the discovery results. The <code>Content-Type</code> header of the response <span class="bcp14">MUST</span> be set to <code>application/json</code>.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">The authorization server <span class="bcp14">MAY</span> include HTTP cache validators (such as <code>ETag</code> or <code>Last-Modified</code> headers) and expiration times (such as <code>Cache-Control</code> or <code>Expires</code> headers) in the response to enable conditional requests by the client, as specified in <span>[<a href="#RFC7234" class="cite xref">RFC7234</a>]</span>.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 <div id="successful-response">
 <section id="section-3.2.1">
           <h4 id="name-successful-response">
 <a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-successful-response" class="section-name selfRef">Successful Response</a>
           </h4>
-<p id="section-3.2.1-1">If the request is valid and authorized, the authorization server returns a JSON object containing a <code>supported_targets</code> property. The <code>supported_targets</code> property is an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-1">If the request is valid and authorized, the authorization server returns a JSON object containing a <code>supported_targets</code> property with an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.2.1-2">Each target service object contains the following properties:<a href="#section-3.2.1-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3.2.1-3">
             <dt id="section-3.2.1-3.1">audience</dt>
             <dd style="margin-left: 1.5em" id="section-3.2.1-3.2">
-              <p id="section-3.2.1-3.2.1"><span class="bcp14">REQUIRED</span>. A string value containing an absolute URI indicating an available audience value for token exchange, as defined in Section 2.1 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>. Empty strings are not supported and the response <span class="bcp14">MUST</span> contain an URI. If the <code>audience</code> value is a URI but not a URL (e.g., a URN) and does not provide a location, the authorization server <span class="bcp14">SHOULD</span> return a <code>resource</code> property that contains a location.<a href="#section-3.2.1-3.2.1" class="pilcrow">¶</a></p>
+              <p id="section-3.2.1-3.2.1"><span class="bcp14">REQUIRED</span>. A string value containing an absolute URI indicating an available audience value for token exchange, as defined in <span><a href="https://rfc-editor.org/rfc/rfc8693#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>. Empty strings are not supported and the response <span class="bcp14">MUST</span> contain an URI. If the <code>audience</code> value is a URI but not a URL (e.g., a URN) and does not provide a location, the authorization server <span class="bcp14">SHOULD</span> return a <code>resource</code> property that contains a location.<a href="#section-3.2.1-3.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-3.2.1-3.3">resource</dt>
             <dd style="margin-left: 1.5em" id="section-3.2.1-3.4">
-              <p id="section-3.2.1-3.4.1"><span class="bcp14">OPTIONAL</span>. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in Section 2 of <span>[<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>. In JSON, URI values are represented as strings. Empty strings are not supported. If present as a string, the string <span class="bcp14">MUST</span> contain a non-empty URI. If present as an array, the array <span class="bcp14">MUST</span> contain at least one non-empty URI string and <span class="bcp14">MUST NOT</span> be empty. If no resources are available for a target service, this property <span class="bcp14">MUST</span> be omitted from the response rather than including an empty string, empty array, or null value.<a href="#section-3.2.1-3.4.1" class="pilcrow">¶</a></p>
+              <p id="section-3.2.1-3.4.1"><span class="bcp14">OPTIONAL</span>. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in <span><a href="https://rfc-editor.org/rfc/rfc8707#section-2" class="relref">Section 2</a> of [<a href="#RFC8707" class="cite xref">RFC8707</a>]</span>. Empty strings are not supported. If present as a string, the string <span class="bcp14">MUST</span> contain a non-empty URI. If present as an array, the array <span class="bcp14">MUST</span> contain at least one non-empty URI string and <span class="bcp14">MUST NOT</span> be empty. If no resources are available for a target service, this property <span class="bcp14">MUST</span> be omitted from the response rather than including an empty string, empty array, or null value.<a href="#section-3.2.1-3.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-3.2.1-3.5">scope</dt>
             <dd style="margin-left: 1.5em" id="section-3.2.1-3.6">
-              <p id="section-3.2.1-3.6.1"><span class="bcp14">OPTIONAL</span>. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in Section 3.3 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, that are available for this target service. Each individual scope value in the list <span class="bcp14">MUST</span> conform to the scope syntax defined in Section 3.3 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. Empty strings are not supported. If the property is present, the string <span class="bcp14">MUST</span> contain at least one non-empty scope value. If no scopes are available for a target service, this property <span class="bcp14">MUST</span> be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned <span class="bcp14">SHOULD</span> be those that would be authorized in a subsequent token exchange request per Section 2.2 of <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-3.2.1-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-3.2.1-3.6.1"><span class="bcp14">OPTIONAL</span>. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, that are available for this target service. Each individual scope value in the list <span class="bcp14">MUST</span> conform to the scope syntax defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-3.3" class="relref">Section 3.3</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. Empty strings are not supported. If the property is present, the string <span class="bcp14">MUST</span> contain at least one non-empty scope value. If no scopes are available for a target service, this property <span class="bcp14">MUST</span> be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned <span class="bcp14">SHOULD</span> be those that would be authorized in a subsequent token exchange request per <span><a href="https://rfc-editor.org/rfc/rfc8693#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#section-3.2.1-3.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-3.2.1-3.7">supported_token_types</dt>
             <dd style="margin-left: 1.5em" id="section-3.2.1-3.8">
-              <p id="section-3.2.1-3.8.1"><span class="bcp14">OPTIONAL</span>. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string <span class="bcp14">MUST</span> be a valid absolute URI, as defined in <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. Empty strings are not supported; array elements <span class="bcp14">MUST</span> contain non-empty URI strings. If the array would be empty or contain only empty strings, this property <span class="bcp14">MUST</span> be omitted from the response. If omitted, the client may use any token type supported by the authorization server.<a href="#section-3.2.1-3.8.1" class="pilcrow">¶</a></p>
+              <p id="section-3.2.1-3.8.1"><span class="bcp14">OPTIONAL</span>. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string <span class="bcp14">MUST</span> be a valid absolute URI. Empty strings are not supported; array elements <span class="bcp14">MUST</span> contain non-empty URI strings. If the array would be empty or contain only empty strings, this property <span class="bcp14">MUST</span> be omitted from the response. If omitted, the client may use any token type supported by the authorization server.<a href="#section-3.2.1-3.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -1498,28 +1500,28 @@ Content-Type: application/json
 
 {
   "supported_targets": [
-  {
-    "audience": "https://api.example.com",
-    "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
-    "scope": "orders.read inventory.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:access_token"
-    ]
-  },
-  {
-    "audience": "https://billing.provider.example",
-    "scope": "customer.read customer.write",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
-    ]
-  },
-  {
-    "audience": "https://backend-audit-service.example.com",
-    "scope": "audit.read audit.write",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:access_token"
-    ]
-  }
+    {
+      "audience": "https://api.example.com",
+      "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
+      "scope": "orders.read inventory.read",
+      "supported_token_types": [
+        "urn:ietf:params:oauth:token-type:access_token"
+      ]
+    },
+    {
+      "audience": "https://billing.provider.example",
+      "scope": "customer.read customer.write",
+      "supported_token_types": [
+        "urn:ietf:params:oauth:token-type:jwt-bearer"
+      ]
+    },
+    {
+      "audience": "https://backend-audit-service.example.com",
+      "scope": "audit.read audit.write",
+      "supported_token_types": [
+        "urn:ietf:params:oauth:token-type:access_token"
+      ]
+    }
   ]
 }
 </pre><a href="#section-3.2.2-2" class="pilcrow">¶</a>
@@ -1533,41 +1535,11 @@ Content-Type: application/json
         <h3 id="name-error-response">
 <a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-error-response" class="section-name selfRef">Error Response</a>
         </h3>
-<p id="section-3.3-1">If the request failed, the authorization server returns an error response as defined in Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The response <span class="bcp14">MUST</span> use the <code>application/json</code> media type, and the <code>Content-Type</code> header <span class="bcp14">MUST</span> be set to <code>application/json</code>. The HTTP status code <span class="bcp14">MUST</span> be set according to the error code, as specified below and in Section 5.2 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The following error codes may be returned:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-1">If the request failed, the authorization server returns an error response as defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The response <span class="bcp14">MUST</span> use the <code>application/json</code> media type, and the <code>Content-Type</code> header <span class="bcp14">MUST</span> be set to <code>application/json</code>. In addition to the error codes specified in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, the following error codes may be returned:<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3.3-2">
-          <dt id="section-3.3-2.1">invalid_request</dt>
+          <dt id="section-3.3-2.1">unsupported_token_type</dt>
           <dd style="margin-left: 1.5em" id="section-3.3-2.2">
-            <p id="section-3.3-2.2.1">The request is missing a required parameter, includes an invalid parameter value (such as an invalid URI format for <code>subject_token_type</code> or an empty string for <code>subject_token</code> or <code>subject_token_type</code>), includes a parameter more than once, or is otherwise malformed. This error code is also returned when the provided subject token is invalid, expired, revoked, or does not match the subject token type, or when another error condition occurred during token validation. The HTTP status code <span class="bcp14">MUST</span> be 400 (Bad Request).<a href="#section-3.3-2.2.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.3">invalid_client</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.4">
-            <p id="section-3.3-2.4.1">Client authentication failed (e.g., unknown client, no client authentication included when required, or unsupported authentication method). This error code <span class="bcp14">MUST</span> be returned when client authentication is required by the authorization server but not provided in the request. The HTTP status code <span class="bcp14">MUST</span> be 401 (Unauthorized).<a href="#section-3.3-2.4.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.5">unauthorized_client</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.6">
-            <p id="section-3.3-2.6.1">The authenticated client is not authorized to use this discovery endpoint. The HTTP status code <span class="bcp14">MUST</span> be 403 (Forbidden).<a href="#section-3.3-2.6.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.7">unsupported_token_type</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.8">
-            <p id="section-3.3-2.8.1">The authorization server does not support the subject token type indicated by the <code>subject_token_type</code> parameter. The HTTP status code <span class="bcp14">MUST</span> be 400 (Bad Request).<a href="#section-3.3-2.8.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.9">invalid_scope</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.10">
-            <p id="section-3.3-2.10.1">The request includes an invalid scope parameter. The HTTP status code <span class="bcp14">MUST</span> be 400 (Bad Request).<a href="#section-3.3-2.10.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.11">server_error</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.12">
-            <p id="section-3.3-2.12.1">The authorization server encountered an unexpected condition that prevented it from fulfilling the request. The HTTP status code <span class="bcp14">MUST</span> be 500 (Internal Server Error).<a href="#section-3.3-2.12.1" class="pilcrow">¶</a></p>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-3.3-2.13">temporarily_unavailable</dt>
-          <dd style="margin-left: 1.5em" id="section-3.3-2.14">
-            <p id="section-3.3-2.14.1">The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server. The HTTP status code <span class="bcp14">MUST</span> be 503 (Service Unavailable).<a href="#section-3.3-2.14.1" class="pilcrow">¶</a></p>
+            <p id="section-3.3-2.2.1">The authorization server does not support the subject token type indicated by the <code>subject_token_type</code> parameter.<a href="#section-3.3-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1599,7 +1571,7 @@ Content-Type: application/json
       <h2 id="name-example">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-example" class="section-name selfRef">Example</a>
       </h2>
-<p id="section-4-1">This example demonstrates a complete cross-domain identity chaining workflow using the token exchange target service discovery endpoint.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-1">This example demonstrates a complete cross-domain identity chaining workflow described in <span>[<a href="#I-D.ietf-oauth-identity-chaining" class="cite xref">I-D.ietf-oauth-identity-chaining</a>]</span> with the addition of the token exchange target service discovery endpoint.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <div id="step-1-discover-target-services">
 <section id="section-4.1">
         <h3 id="name-step-1-discover-target-serv">
@@ -1638,14 +1610,14 @@ Content-Type: application/json
 
 {
   "supported_targets": [
-  {
-    "audience": "https://api.domainB.example",
-    "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
-    "scope": "orders.read inventory.read",
-    "supported_token_types": [
-      "urn:ietf:params:oauth:token-type:jwt-bearer"
-    ]
-  }
+    {
+      "audience": "https://api.domainB.example",
+      "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
+      "scope": "orders.read inventory.read",
+      "supported_token_types": [
+        "urn:ietf:params:oauth:token-type:jwt-bearer"
+      ]
+    }
   ]
 }
 </pre><a href="#section-4.1.2-1" class="pilcrow">¶</a>
@@ -1746,7 +1718,7 @@ Content-Type: application/json
 }
 </pre><a href="#section-4.3.2-1" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.2-2">The client now holds a Domain B-scoped JWT token that can be used to access the target service, derived from Domain A's access token through the token exchange process.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.2-2">The client now holds a Domain-B-scoped JWT token that can be used to access the target service, derived from Domain A's access token through the token exchange process.<a href="#section-4.3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1802,7 +1774,7 @@ Content-Type: application/json
             <p id="section-6.1-2.4.1">The subject token has not been revoked<a href="#section-6.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-6.1-3">If any validation fails, the authorization server <span class="bcp14">MUST</span> return an <code>invalid_request</code> error as described in Section 2.2.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
+<p id="section-6.1-3">If any validation fails, the authorization server <span class="bcp14">MUST</span> return an <code>invalid_request</code> error as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="client-authentication">
@@ -1810,7 +1782,7 @@ Content-Type: application/json
         <h3 id="name-client-authentication">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-client-authentication" class="section-name selfRef">Client Authentication</a>
         </h3>
-<p id="section-6.2-1">The authorization server <span class="bcp14">SHOULD</span> require client authentication for the discovery endpoint to prevent unauthorized access to authorization information. The authorization server <span class="bcp14">MUST</span> support at least one of the client authentication methods defined in Section 2.3 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. If client authentication is required but not provided, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_client</code> as described in Section 2.2.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-1">The authorization server <span class="bcp14">SHOULD</span> require client authentication for the discovery endpoint to prevent unauthorized access to authorization information. The authorization server <span class="bcp14">MUST</span> support at least one of the client authentication methods defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-2.3" class="relref">Section 2.3</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. If client authentication is required but not provided, the authorization server <span class="bcp14">MUST</span> return an error response with the error code <code>invalid_client</code> as described in <a href="#error-response" class="auto internal xref">Section 3.3</a>.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-policy-enforcement">
@@ -1848,7 +1820,7 @@ Content-Type: application/json
         <h3 id="name-token-confidentiality">
 <a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-token-confidentiality" class="section-name selfRef">Token Confidentiality</a>
         </h3>
-<p id="section-6.5-1">The subject token is transmitted in the request. The authorization server <span class="bcp14">MUST</span> require the use of TLS as specified in Section 1.6 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> to protect the token in transit.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
+<p id="section-6.5-1">The subject token is transmitted in the request. The authorization server <span class="bcp14">MUST</span> require the use of TLS as specified in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-1.6" class="relref">Section 1.6</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> to protect the token in transit.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="error-handling">
@@ -1905,7 +1877,7 @@ Content-Type: application/json
         <h3 id="name-oauth-authorization-server-">
 <a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
         </h3>
-<p id="section-8.1-1">This specification registers the following value in the IANA "OAuth Authorization Server Metadata" registry <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
+<p id="section-8.1-1">This specification registers the following value in the IANA "OAuth Authorization Server Metadata" registry established by <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
 <p id="section-8.1-2">Metadata Name: <code>token_exchange_target_service_discovery_endpoint</code><a href="#section-8.1-2" class="pilcrow">¶</a></p>
 <p id="section-8.1-3">Metadata Description: URL of the token exchange target service discovery endpoint<a href="#section-8.1-3" class="pilcrow">¶</a></p>
 <p id="section-8.1-4">Change Controller: IESG<a href="#section-8.1-4" class="pilcrow">¶</a></p>
@@ -1941,10 +1913,6 @@ Content-Type: application/json
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8414">https://www.rfc-editor.org/info/rfc8414</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC3986">[RFC3986]</dt>
-        <dd>
-<span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3986">https://www.rfc-editor.org/info/rfc3986</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC8693">[RFC8693]</dt>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Nadalin, A.</span>, <span class="refAuthor">Campbell, B., Ed.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OAuth 2.0 Token Exchange"</span>, <span class="seriesInfo">RFC 8693</span>, <span class="seriesInfo">DOI 10.17487/RFC8693</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8693">https://www.rfc-editor.org/info/rfc8693</a>&gt;</span>. </dd>
@@ -1966,13 +1934,17 @@ Content-Type: application/json
 <a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="RFC2616">[RFC2616]</dt>
+<dt id="RFC7234">[RFC7234]</dt>
         <dd>
-<span class="refAuthor">Fielding, R.</span>, <span class="refAuthor">Gettys, J.</span>, <span class="refAuthor">Mogul, J.</span>, <span class="refAuthor">Frystyk, H.</span>, <span class="refAuthor">Masinter, L.</span>, <span class="refAuthor">Leach, P.</span>, and <span class="refAuthor">T. Berners-Lee</span>, <span class="refTitle">"Hypertext Transfer Protocol -- HTTP/1.1"</span>, <span class="seriesInfo">RFC 2616</span>, <span class="seriesInfo">DOI 10.17487/RFC2616</span>, <time datetime="1999-06" class="refDate">June 1999</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2616">https://www.rfc-editor.org/info/rfc2616</a>&gt;</span>. </dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"Hypertext Transfer Protocol (HTTP/1.1): Caching"</span>, <span class="seriesInfo">RFC 7234</span>, <span class="seriesInfo">DOI 10.17487/RFC7234</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7234">https://www.rfc-editor.org/info/rfc7234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6755">[RFC6755]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span> and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"An IETF URN Sub-Namespace for OAuth"</span>, <span class="seriesInfo">RFC 6755</span>, <span class="seriesInfo">DOI 10.17487/RFC6755</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6755">https://www.rfc-editor.org/info/rfc6755</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-oauth-identity-chaining">[I-D.ietf-oauth-identity-chaining]</dt>
         <dd>
-<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Burgin, K.</span>, <span class="refAuthor">Jenkins, M. J.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth Identity and Authorization Chaining Across Domains"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-chaining-06</span>, <time datetime="2025-09-12" class="refDate">12 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-06">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-06</a>&gt;</span>. </dd>
+<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Burgin, K.</span>, <span class="refAuthor">Jenkins, M. J.</span>, and <span class="refAuthor">B. Campbell</span>, <span class="refTitle">"OAuth Identity and Authorization Chaining Across Domains"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-identity-chaining-08</span>, <time datetime="2026-02-09" class="refDate">9 February 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-08">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-08</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.oauth-identity-assertion-authz-grant">[I-D.oauth-identity-assertion-authz-grant]</dt>
       <dd>
@@ -2013,7 +1985,7 @@ Content-Type: application/json
 </div>
 <div class="url">
 <span>URI:</span>
-<a href="https://www.okta.com" class="url">https://www.okta.com</a>
+<a href="https://aaronparecki.com" class="url">https://aaronparecki.com</a>
 </div>
 </address>
 </section>
