@@ -113,6 +113,7 @@ Table of Contents
      9.1.  Normative References
      9.2.  Informative References
    Acknowledgments
+   Document History
    Authors' Addresses
 
 1.  Introduction
@@ -781,6 +782,19 @@ Acknowledgments
    The authors would like to thank the following individuals who
    contributed ideas, feedback, and wording that helped shape this
    specification: Max Gerber
+
+Document History
+
+   -01
+
+   *  Changed discovery response to an object for extensibility with
+      supported_targets param
+
+   *  Updated references
+
+   -00
+
+   *  Initial revision
 
 Authors' Addresses
 
