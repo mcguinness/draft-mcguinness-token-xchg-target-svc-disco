@@ -420,3 +420,15 @@ Specification Document(s): [[ this document ]]
 
 The authors would like to thank the following individuals who contributed ideas, feedback, and wording that helped shape this specification: Max Gerber
 
+# Document History
+{:numbered="false"}
+
+-01
+
+* Changed discovery response to an object for extensibility with supported_targets param
+* Updated references
+
+-00
+
+* Initial revision
+
