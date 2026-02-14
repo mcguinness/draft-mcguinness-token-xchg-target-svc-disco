@@ -41,6 +41,7 @@ normative:
 
 informative:
   RFC7234:
+  RFC6755:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
     title: OAuth 2.0 Identity Assertion JWT Authorization Grant
