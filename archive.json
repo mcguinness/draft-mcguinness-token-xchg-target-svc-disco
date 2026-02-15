@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-01-29T01:07:37.696488+00:00",
+  "timestamp": "2026-02-15T01:15:11.430618+00:00",
   "repo": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
   "labels": [
     {
@@ -121,9 +121,24 @@
       "labels": [],
       "body": "I view the issue of discovery for the token exchange grant type as very broad. Not only can the downstream service and resulting token type be discovered, but also the method of token exchange and intermediary token types supported.  \n\nhttps://www.ietf.org/archive/id/draft-ietf-oauth-identity-assertion-authz-grant-01.html#name-authorization-server-idp-me specifies for example introduces `identity_chaining_requested_token_types_supported` as a means of understanding intermediary token types supported.\n\ntoken A -> exchanged for  token B -> exchanged for token C -> exchanged for token D....\n\nThis specification currently supports a scenario where a client can find which eventual audiences the authorization server would issue intermediary tokens for - not what type of tokens these are, or \n\nIt seems purpose built but also not broad enough for general token exchange use cases. One issue is that https://datatracker.ietf.org/doc/html/rfc8693 does not require audience as a parameter in the request, yet the response assumes the audience field will be useful to the client and reference 2.1 of token exchange RFC.\n\n\nI propose a couple solutions, one which is to describe the `audience` in this specification response as the intended authorization server issuer for which the intermediary token is to be sent, or another which is to specify that when an Authz Server is behaving as an IDP, this specificaiton should apply and make it more purpose-built.\n\n",
       "createdAt": "2025-12-18T00:47:43Z",
-      "updatedAt": "2025-12-18T00:47:43Z",
+      "updatedAt": "2026-02-14T03:37:55Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Does `supported_token_types` in the discovery response address your concern? https://mcguinness.github.io/draft-mcguinness-token-xchg-target-svc-disco/draft-mcguinness-token-xchg-target-svc-disco.html#name-successful-response",
+          "createdAt": "2026-02-14T03:32:48Z",
+          "updatedAt": "2026-02-14T03:32:48Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "I could see audience or resource as required (at least one). would that address your concern?",
+          "createdAt": "2026-02-14T03:37:55Z",
+          "updatedAt": "2026-02-14T03:37:55Z"
+        }
+      ]
     },
     {
       "number": 5,
@@ -137,25 +152,41 @@
       "labels": [],
       "body": "Adding `amr` can provide valuable information to the client about essential `mfa` (step-up auth), other policy requirements. This can help avoid errors due to authentication context not meeting resource access policy. ",
       "createdAt": "2025-12-18T18:38:24Z",
-      "updatedAt": "2025-12-18T18:38:24Z",
+      "updatedAt": "2026-02-14T00:24:34Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "`amr` describes what was done, not what is required.  I don't this spec should attempt to solve policy discovery, clients can handle this at runtime when requesting tokens.",
+          "createdAt": "2026-02-14T00:24:33Z",
+          "updatedAt": "2026-02-14T00:24:33Z"
+        }
+      ]
     },
     {
       "number": 6,
       "id": "I_kwDOQmXELM7iXLZP",
       "title": "Allow adapting this token exchange metadata spec to specific token exchange cases like ID-JAG by introducing custom/flex object",
       "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "meghnadubey",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "Allowing for a custom object ensures that the discovery spec can be a complete solution for specific token exchange cases like ID-JAG. \nFor example, in the case of ID-JAG, including a `client-id` for the resource in IdP can help with resolution or establishment of the access context in the RS.\n",
       "createdAt": "2026-01-09T17:19:10Z",
-      "updatedAt": "2026-01-09T17:21:36Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-02-14T03:29:48Z",
+      "closedAt": "2026-02-14T03:29:48Z",
+      "comments": [
+        {
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "body": "Updated discovery response to be an object",
+          "createdAt": "2026-02-14T03:29:35Z",
+          "updatedAt": "2026-02-14T03:29:35Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -218,24 +249,115 @@
       "id": "PR_kwDOQmXELM6_gzS8",
       "title": "mostly fixing references",
       "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/pull/7",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "aaronpk",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "mostly fixing references, also removed some redundant text",
       "createdAt": "2026-01-27T04:55:59Z",
-      "updatedAt": "2026-01-27T04:56:33Z",
+      "updatedAt": "2026-02-14T00:22:01Z",
       "baseRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
       "baseRefName": "main",
       "baseRefOid": "39e4886efc75063f91a8ba0988402c8dcabd02c6",
       "headRepository": "aaronpk/draft-mcguinness-token-xchg-target-svc-disco",
       "headRefName": "main",
-      "headRefOid": "362380ff1ea11b9f9e2400338f4be7bb79f26853",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "e1531512ac6758b67860b9a1e8ec5867bf3ec20b",
+      "closedAt": "2026-02-14T00:22:01Z",
+      "mergedAt": "2026-02-14T00:22:01Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "a761c11ad1106faa4b232ba9aad7df1a144dcc5f"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOQmXELM7ig17z",
+          "commit": {
+            "abbreviatedOid": "362380f"
+          },
+          "author": "mcguinness",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-14T00:16:17Z",
+          "updatedAt": "2026-02-14T00:16:17Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "I think we need RFC6755 as a normative reference at the top.  Validation is failing for build",
+              "createdAt": "2026-02-14T00:16:17Z",
+              "updatedAt": "2026-02-14T00:16:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOQmXELM7ig4La",
+          "commit": {
+            "abbreviatedOid": "362380f"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-14T00:19:02Z",
+          "updatedAt": "2026-02-14T00:19:02Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "```suggestion\n  RFC7234:\n  RFC6755:\n```",
+              "createdAt": "2026-02-14T00:19:02Z",
+              "updatedAt": "2026-02-14T00:19:12Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOQmXELM7ig4pp",
+          "commit": {
+            "abbreviatedOid": "362380f"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-14T00:19:32Z",
+          "updatedAt": "2026-02-14T00:19:32Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "added https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/pull/7/commits/e1531512ac6758b67860b9a1e8ec5867bf3ec20b",
+              "createdAt": "2026-02-14T00:19:32Z",
+              "updatedAt": "2026-02-14T00:19:32Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "PR_kwDOQmXELM7DswI4",
+      "title": "Added document history",
+      "url": "https://github.com/mcguinness/draft-mcguinness-token-xchg-target-svc-disco/pull/8",
+      "state": "MERGED",
+      "author": "mcguinness",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Added document history and new version",
+      "createdAt": "2026-02-14T00:31:02Z",
+      "updatedAt": "2026-02-14T00:31:39Z",
+      "baseRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
+      "baseRefName": "main",
+      "baseRefOid": "a761c11ad1106faa4b232ba9aad7df1a144dcc5f",
+      "headRepository": "mcguinness/draft-mcguinness-token-xchg-target-svc-disco",
+      "headRefName": "doc-history",
+      "headRefOid": "7834c7dc8adeb134864a58a5b8cf36473883f6c9",
+      "closedAt": "2026-02-14T00:31:39Z",
+      "mergedAt": "2026-02-14T00:31:39Z",
+      "mergedBy": "mcguinness",
+      "mergeCommit": {
+        "oid": "1c1fc7e5313c1a3d3f33eafed8f2da54f774235b"
+      },
       "comments": [],
       "reviews": []
     }
