@@ -439,15 +439,14 @@ Table of Contents
       rather than including an empty string.
 
    client_id  OPTIONAL.  The OAuth 2.0 client identifier that the client
-      SHOULD use to authenticate when performing the subsequent token
-      exchange request for this target service.  This property supports
-      multi-tenant authorization servers that require a distinct client
-      registration for each tenant.  The client is expected to possess
-      credentials for the indicated client identifier.  Empty strings
-      are not supported; if present, the value MUST be a non-empty
-      string.  If omitted, the client uses the same client identity it
-      used for the discovery request, or any client identity it
-      determines is appropriate by other means.
+      uses with the target service when presenting the issued token (see
+      Section 3.2.3).  This property supports multi-tenant target
+      services that require a distinct client registration for each
+      tenant.  The client is expected to possess credentials for the
+      indicated client identifier where client authentication applies.
+      Empty strings are not supported; if present, the value MUST be a
+      non-empty string.  If omitted, the client uses a client identity
+      it determines is appropriate by other means.
 
    Extensions to this specification MAY define additional properties for
    the response object or for target service objects.  Clients MUST
@@ -535,13 +534,19 @@ Content-Type: application/json
    token, and SHOULD include the display_name property so that a client
    can present a tenant picker to an end user.
 
-   If the multi-tenant authorization server requires a distinct client
+   If a multi-tenant target service requires a distinct client
    registration for each tenant, the authorization server MAY include
    the client_id property in each target service object to indicate the
-   client identifier the client uses when performing the subsequent
-   token exchange request for that tenant.  If the authorization server
-   uses a shared client registration across tenants, the client_id
-   property is omitted.
+   client identifier the client uses with that tenant when presenting
+   the issued token.  The issued token is not necessarily presented
+   through token exchange: depending on the target service, it may be an
+   authorization grant, such as an ID-JAG
+   [I-D.oauth-identity-assertion-authz-grant], that the client redeems
+   at the target service's authorization server (where this client_id is
+   used for client authentication), or an access token that the client
+   presents directly to a resource server.  If a shared client
+   registration is used across tenants, the client_id property is
+   omitted.
 
    The following is a non-normative example of a discovery response for
    a multi-tenant target service with two tenants that share the same
@@ -581,8 +586,10 @@ Content-Type: application/json
    display_name values (for example, "SaaS Example Dev" and "SaaS
    Example Staging").  Once the user selects a tenant, the client
    performs the token exchange using the corresponding audience value
-   (for example, urn:saas:tenant:dev) and, if present, authenticates
-   using the corresponding client_id.
+   (for example, urn:saas:tenant:dev).  When the resulting issued token
+   is later presented at the target service, the client uses the
+   corresponding client_id, if present and where client authentication
+   applies.
 
 3.3.  Error Response
 
