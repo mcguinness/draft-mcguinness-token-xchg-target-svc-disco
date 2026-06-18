@@ -5,8 +5,8 @@
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
 Intended status: Standards Track                              A. Parecki
-Expires: 18 December 2026                                           Okta
-                                                            16 June 2026
+Expires: 20 December 2026                                           Okta
+                                                            18 June 2026
 
 
            OAuth 2.0 Token Exchange Target Service Discovery
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 December 2026.
+   This Internet-Draft will expire on 20 December 2026.
 
 Copyright Notice
 
@@ -93,9 +93,7 @@ Table of Contents
      4.1.  Step 1: Discover Target Services
        4.1.1.  Discovery Request
        4.1.2.  Discovery Response
-     4.2.  Step 2: Discover Token Types (Optional)
-       4.2.1.  Metadata Request
-       4.2.2.  Metadata Response
+     4.2.  Step 2: Determine Token Types (Optional)
      4.3.  Step 3: Perform Token Exchange
        4.3.1.  Token Exchange Request
        4.3.2.  Token Exchange Response
@@ -123,7 +121,7 @@ Table of Contents
    OAuth 2.0 Token Exchange [RFC8693] enables a client to present a
    token issued in one security domain to an Authorization Server and
    securely trade it for a new token issued for another domain.  The
-   exchanged token is minted with the target server’s token
+   exchanged token is minted with the target server's token
    requirements, including its own audience, resource indicators, and
    scopes, so it becomes valid and enforceable for the desired
    downstream service.  This enables controlled cross-domain access,
@@ -351,15 +349,19 @@ Table of Contents
    The authorization server MAY include HTTP cache validators (such as
    ETag or Last-Modified headers) and expiration times (such as Cache-
    Control or Expires headers) in the response to enable conditional
-   requests by the client, as specified in [RFC7234].
+   requests by the client, as specified in [RFC7234].  Because the
+   response is specific to the subject token and authenticated client
+   and is authorization-filtered, any cache directives MUST mark the
+   response as private (for example, Cache-Control: private); shared
+   caches MUST NOT store it.
 
 3.2.1.  Successful Response
 
    If the request is valid and authorized, the authorization server
-   returns a JSON object containing a supported_targets property with an
-   array of available token exchange targets.  Each element in the array
-   represents a target service that the client is authorized to request
-   in a subsequent token exchange operation.
+   returns a JSON [RFC8259] object containing a supported_targets
+   property with an array of available token exchange targets.  Each
+   element in the array represents a target service that the client is
+   authorized to request in a subsequent token exchange operation.
 
    Each target service object contains the following properties:
 
@@ -467,6 +469,15 @@ Table of Contents
    If no target services are available for the given subject token and
    client, the authorization server returns a JSON object with an empty
    supported_targets array: {"supported_targets": []}.
+
+   Discovery results reflect authorization at the time of the request
+   and are not a guarantee.  The authorization server re-evaluates
+   authorization when the subsequent token exchange is performed, and
+   that exchange MAY still fail (for example, if policy changed, the
+   subject token expired, or the target became unavailable in the
+   interim).  A client MUST handle errors from the token exchange
+   request [RFC8693] rather than assuming a discovered target will
+   succeed.
 
 3.2.2.  Response Example
 
@@ -603,6 +614,10 @@ Content-Type: application/json
    unsupported_token_type  The authorization server does not support the
       subject token type indicated by the subject_token_type parameter.
 
+   When the authorization server rate-limits a client (see Section 6.4),
+   it MAY respond with HTTP 429 (Too Many Requests) and SHOULD include a
+   Retry-After header field.
+
 3.3.1.  Error Response Example
 
    The following is an example of an error response:
@@ -664,33 +679,15 @@ Content-Type: application/json
    inventory.read.  The client also learns that JWT bearer tokens are
    supported for this target service.
 
-4.2.  Step 2: Discover Token Types (Optional)
+4.2.  Step 2: Determine Token Types (Optional)
 
-   If the discovery response does not include supported_token_types, or
-   if the client needs to verify token type support, the client may
-   query the Authorization Server Metadata of Domain B to determine
-   which token types are supported for the target service.
-
-4.2.1.  Metadata Request
-
-GET https://as.domainB.example/.well-known/oauth-authorization-server HTTP/1.1
-Host: as.domainB.example
-
-4.2.2.  Metadata Response
-
-   HTTP/1.1 200 OK
-   Content-Type: application/json
-
-   {
-     "issuer": "https://as.domainB.example",
-     "token_endpoint": "https://as.domainB.example/token",
-     "requested_token_types_supported": [
-       "urn:ietf:params:oauth:token-type:jwt-bearer"
-     ]
-   }
-
-   This confirms that Domain B supports JWT bearer tokens as a requested
-   token type.
+   The discovery response's supported_token_types property indicates the
+   token types the client may request for the target.  In this example
+   it listed urn:ietf:params:oauth:token-type:jwt-bearer, so the client
+   proceeds directly to the token exchange.  When a discovery response
+   omits supported_token_types, the client determines the requestable
+   token types from the target service's documentation or other out-of-
+   band configuration.
 
 4.3.  Step 3: Perform Token Exchange
 
@@ -896,9 +893,10 @@ Host: as.domainB.example
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/info/rfc6749>.
 
-   [RFC7159]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
-              Interchange Format", RFC 7159, DOI 10.17487/RFC7159, March
-              2014, <https://www.rfc-editor.org/info/rfc7159>.
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/info/rfc8259>.
 
    [RFC8707]  Campbell, B., Bradley, J., and H. Tschofenig, "Resource
               Indicators for OAuth 2.0", RFC 8707, DOI 10.17487/RFC8707,
@@ -965,6 +963,18 @@ Document History
       semantics of Section 2.1 of [RFC8693] so that a distinct opaque
       audience value per tenant selects the tenant without changing the
       OAuth 2.0 Token Exchange request contract.
+
+   *  Replaced the obsolete JSON reference RFC 7159 with RFC 8259 and
+      corrected the abbrev value.
+
+   *  Required discovery responses to be marked private and not stored
+      by shared caches.
+
+   *  Clarified that discovery results are point-in-time and not a
+      guarantee: the subsequent token exchange is re-evaluated and may
+      still fail.
+
+   *  Added HTTP 429 with Retry-After for rate limiting.
 
    -01
 
