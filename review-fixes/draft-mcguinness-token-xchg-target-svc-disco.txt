@@ -452,11 +452,18 @@ Table of Contents
    supported_token_types  OPTIONAL.  An array of strings indicating the
       token types that may be requested for this target service in a
       subsequent token exchange operation.  Each string MUST be a valid
-      absolute URI.  Empty strings are not supported.  Array elements
-      MUST contain non-empty URI strings.  If the array would be empty
-      or contain only empty strings, this property MUST be omitted from
-      the response.  If omitted, the client may use any token type
-      supported by the authorization server.
+      absolute URI.  A token type identifier MAY be any URI, as
+      permitted by Section 3 of [RFC8693], not only those enumerated
+      there.  In particular, to request a JWT that is to be presented to
+      the target service as a jwt-bearer authorization grant [RFC7523],
+      the grant type identifier urn:ietf:params:oauth:grant-type:jwt-
+      bearer is used as the token type value; this conveys the JWT's
+      intended use, which the generic urn:ietf:params:oauth:token-
+      type:jwt identifier does not.  Empty strings are not supported.
+      Array elements MUST contain non-empty URI strings.  If the array
+      would be empty or contain only empty strings, this property MUST
+      be omitted from the response.  If omitted, the client may use any
+      token type supported by the authorization server.
 
    display_name  OPTIONAL.  A human-readable name for the target
       service, suitable for display to an end user (for example, in a
@@ -528,7 +535,7 @@ Content-Type: application/json
       "audience": "https://billing.provider.example",
       "scope": "customer.read customer.write",
       "supported_token_types": [
-        "urn:ietf:params:oauth:token-type:jwt"
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
       ]
     },
     {
@@ -602,7 +609,7 @@ Content-Type: application/json
          "resource": "https://api.saas.example",
          "scope": "orders.read orders.write",
          "supported_token_types": [
-           "urn:ietf:params:oauth:token-type:jwt"
+           "urn:ietf:params:oauth:grant-type:jwt-bearer"
          ],
          "display_name": "SaaS Example Dev",
          "client_id": "client-dev"
@@ -613,7 +620,7 @@ Content-Type: application/json
          "resource": "https://api.saas.example",
          "scope": "orders.read orders.write",
          "supported_token_types": [
-           "urn:ietf:params:oauth:token-type:jwt"
+           "urn:ietf:params:oauth:grant-type:jwt-bearer"
          ],
          "display_name": "SaaS Example Staging",
          "client_id": "client-staging"
@@ -694,7 +701,7 @@ Content-Type: application/json
       "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
       "scope": "orders.read inventory.read",
       "supported_token_types": [
-        "urn:ietf:params:oauth:token-type:jwt"
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
       ]
     }
   ]
@@ -704,14 +711,14 @@ Content-Type: application/json
    exchange for the audience https://api.domainB.example with the
    resources https://api.domainB.example/orders and
    https://api.domainB.example/inventory and the scopes orders.read and
-   inventory.read.  The client also learns that JWT tokens are supported
-   for this target service.
+   inventory.read.  The client also learns that a JWT jwt-bearer
+   authorization grant is supported for this target service.
 
 4.2.  Step 2: Determine Token Types (Optional)
 
    The discovery response's supported_token_types property indicates the
    token types the client may request for the target.  In this example
-   it listed urn:ietf:params:oauth:token-type:jwt, so the client
+   it listed urn:ietf:params:oauth:grant-type:jwt-bearer, so the client
    proceeds directly to the token exchange.  When a discovery response
    omits supported_token_types, the client determines the requestable
    token types from the target service's documentation or other out-of-
@@ -732,7 +739,7 @@ Content-Type: application/json
    grant_type=urn:ietf:params:oauth:grant-type:token-exchange
    &subject_token=SlAV32hkKG...ACCESSTOKEN...
    &subject_token_type=urn:ietf:params:oauth:token-type:access_token
-   &requested_token_type=urn:ietf:params:oauth:token-type:jwt
+   &requested_token_type=urn:ietf:params:oauth:grant-type:jwt-bearer
    &audience=https://api.domainB.example
    &resource=https://api.domainB.example/orders
    &resource=https://api.domainB.example/inventory
@@ -745,7 +752,7 @@ Content-Type: application/json
 
    {
      "access_token": "eyJraWQiOi...DOMAINB.JWT...",
-     "issued_token_type": "urn:ietf:params:oauth:token-type:jwt",
+     "issued_token_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
      "token_type": "N_A",
      "expires_in": 3600,
      "scope": "orders.read inventory.read"
@@ -983,6 +990,11 @@ Content-Type: application/json
               for OAuth", RFC 6755, DOI 10.17487/RFC6755, October 2012,
               <https://www.rfc-editor.org/info/rfc6755>.
 
+   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
+              (JWT) Profile for OAuth 2.0 Client Authentication and
+              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
+              2015, <https://www.rfc-editor.org/info/rfc7523>.
+
    [I-D.ietf-oauth-identity-chaining]
               Schwenkschuster, A., Kasselman, P., Burgin, K., Jenkins,
               M. J., Campbell, B., and A. Parecki, "OAuth Identity and
@@ -1027,8 +1039,12 @@ Document History
 
    *  Added HTTP 429 with Retry-After for rate limiting.
 
-   *  Corrected the JWT token type identifier in examples to
-      urn:ietf:params:oauth:token-type:jwt.
+   *  Replaced the invalid urn:ietf:params:oauth:token-type:jwt-bearer
+      token type identifier; examples now use
+      urn:ietf:params:oauth:grant-type:jwt-bearer as the token type
+      value to denote a JWT presented as a jwt-bearer authorization
+      grant [RFC7523], and supported_token_types notes that any URI may
+      be a token type identifier per Section 3 of [RFC8693].
 
    *  Clarified the client identity model (client authentication
       parameters versus unknown parameters, public-client
