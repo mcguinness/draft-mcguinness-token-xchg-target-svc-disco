@@ -1530,7 +1530,7 @@ client_id=client-A
             <dd class="break"></dd>
 <dt id="section-3.3.1-4.9">supported_token_types</dt>
             <dd style="margin-left: 1.5em" id="section-3.3.1-4.10">
-              <p id="section-3.3.1-4.10.1"><span class="bcp14">OPTIONAL</span>. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string <span class="bcp14">MUST</span> be a valid absolute URI. A token type identifier <span class="bcp14">MAY</span> be any URI, as permitted by <span><a href="https://rfc-editor.org/rfc/rfc8693#section-3" class="relref">Section 3</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, not only those enumerated there. In particular, to request a JWT that is to be presented to the Target Service as a <code>jwt-bearer</code> authorization grant <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>, the grant type identifier <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> is used as the token type value; this conveys the JWT's intended use, which the generic <code>urn:ietf:params:oauth:token-type:jwt</code> identifier does not. If omitted, the client may use any token type supported by the authorization server.<a href="#section-3.3.1-4.10.1" class="pilcrow">¶</a></p>
+              <p id="section-3.3.1-4.10.1"><span class="bcp14">OPTIONAL</span>. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string <span class="bcp14">MUST</span> be a valid absolute URI. A token type identifier <span class="bcp14">MAY</span> be any URI, as permitted by <span><a href="https://rfc-editor.org/rfc/rfc8693#section-3" class="relref">Section 3</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>, when that URI identifies the requested token type or token usage profile understood by the authorization server and client. For example, <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> identifies a JWT intended to be presented as a JWT bearer authorization grant as defined by <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>; this specification intentionally permits the RFC 7523 grant-type URI to be used in this role, which the generic <code>urn:ietf:params:oauth:token-type:jwt</code> identifier does not convey. If omitted, the client may use any token type supported by the authorization server.<a href="#section-3.3.1-4.10.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-3.3.1-4.11">display_name</dt>
@@ -1968,6 +1968,10 @@ Content-Type: application/json
         <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6749">https://www.rfc-editor.org/info/rfc6749</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC7523">[RFC7523]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7523</span>, <span class="seriesInfo">DOI 10.17487/RFC7523</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7523">https://www.rfc-editor.org/info/rfc7523</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8259">[RFC8259]</dt>
         <dd>
 <span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8259">https://www.rfc-editor.org/info/rfc8259</a>&gt;</span>. </dd>
@@ -2012,10 +2016,6 @@ Content-Type: application/json
 <dt id="RFC6755">[RFC6755]</dt>
         <dd>
 <span class="refAuthor">Campbell, B.</span> and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"An IETF URN Sub-Namespace for OAuth"</span>, <span class="seriesInfo">RFC 6755</span>, <span class="seriesInfo">DOI 10.17487/RFC6755</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6755">https://www.rfc-editor.org/info/rfc6755</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC7523">[RFC7523]</dt>
-        <dd>
-<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7523</span>, <span class="seriesInfo">DOI 10.17487/RFC7523</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7523">https://www.rfc-editor.org/info/rfc7523</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9110">[RFC9110]</dt>
         <dd>
@@ -2105,6 +2105,9 @@ Content-Type: application/json
 </li>
         <li class="normal" id="appendix-B-2.19">
           <p id="appendix-B-2.19.1">Pre-publication cleanup: referenced <span>[<a href="#RFC6585" class="cite xref">RFC6585</a>]</span> and <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span> for the HTTP 429 / <code>Retry-After</code> guidance; added a requirement that the authorization server not log the <code>subject_token</code>; kept <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span> informative (consistent with <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>); and made the capitalization of "authorization server" consistent.<a href="#appendix-B-2.19.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-B-2.20">
+          <p id="appendix-B-2.20.1">Tightened the <code>supported_token_types</code> language so a token type identifier <span class="bcp14">MUST</span> identify the requested token type or token usage profile understood by the authorization server and client, and promoted <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span> to normative, since the draft now relies on it to define the protocol-significant <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> token type value.<a href="#appendix-B-2.20.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-B-3">-01<a href="#appendix-B-3" class="pilcrow">¶</a></p>

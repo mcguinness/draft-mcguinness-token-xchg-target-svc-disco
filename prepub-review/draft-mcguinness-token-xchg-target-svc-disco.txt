@@ -463,14 +463,16 @@ client_id=client-A
       token types that may be requested for this target in a subsequent
       token exchange operation.  Each string MUST be a valid absolute
       URI.  A token type identifier MAY be any URI, as permitted by
-      Section 3 of [RFC8693], not only those enumerated there.  In
-      particular, to request a JWT that is to be presented to the Target
-      Service as a jwt-bearer authorization grant [RFC7523], the grant
-      type identifier urn:ietf:params:oauth:grant-type:jwt-bearer is
-      used as the token type value; this conveys the JWT's intended use,
-      which the generic urn:ietf:params:oauth:token-type:jwt identifier
-      does not.  If omitted, the client may use any token type supported
-      by the authorization server.
+      Section 3 of [RFC8693], when that URI identifies the requested
+      token type or token usage profile understood by the authorization
+      server and client.  For example, urn:ietf:params:oauth:grant-
+      type:jwt-bearer identifies a JWT intended to be presented as a JWT
+      bearer authorization grant as defined by [RFC7523]; this
+      specification intentionally permits the RFC 7523 grant-type URI to
+      be used in this role, which the generic
+      urn:ietf:params:oauth:token-type:jwt identifier does not convey.
+      If omitted, the client may use any token type supported by the
+      authorization server.
 
    display_name  OPTIONAL.  A human-readable name for the Target
       Service, suitable for display to an end user (for example, in a
@@ -940,6 +942,11 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/info/rfc6749>.
 
+   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
+              (JWT) Profile for OAuth 2.0 Client Authentication and
+              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
+              2015, <https://www.rfc-editor.org/info/rfc7523>.
+
    [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
               Interchange Format", STD 90, RFC 8259,
               DOI 10.17487/RFC8259, December 2017,
@@ -982,11 +989,6 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
    [RFC6755]  Campbell, B. and H. Tschofenig, "An IETF URN Sub-Namespace
               for OAuth", RFC 6755, DOI 10.17487/RFC6755, October 2012,
               <https://www.rfc-editor.org/info/rfc6755>.
-
-   [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
-              (JWT) Profile for OAuth 2.0 Client Authentication and
-              Authorization Grants", RFC 7523, DOI 10.17487/RFC7523, May
-              2015, <https://www.rfc-editor.org/info/rfc7523>.
 
    [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP Semantics", STD 97, RFC 9110,
@@ -1110,6 +1112,13 @@ Document History
       authorization server not log the subject_token; kept [RFC6755]
       informative (consistent with [RFC8693]); and made the
       capitalization of "authorization server" consistent.
+
+   *  Tightened the supported_token_types language so a token type
+      identifier MUST identify the requested token type or token usage
+      profile understood by the authorization server and client, and
+      promoted [RFC7523] to normative, since the draft now relies on it
+      to define the protocol-significant urn:ietf:params:oauth:grant-
+      type:jwt-bearer token type value.
 
    -01
 
