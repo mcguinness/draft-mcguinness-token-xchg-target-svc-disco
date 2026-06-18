@@ -86,9 +86,9 @@ Table of Contents
      3.2.  Endpoint Response
        3.2.1.  Successful Response
        3.2.2.  Response Example
-       3.2.3.  Multi-Tenant Target Services
-     3.3.  Error Response
-       3.3.1.  Error Response Example
+     3.3.  Multi-Tenant Target Services
+     3.4.  Error Response
+       3.4.1.  Error Response Example
    4.  Authorization Server Metadata
    5.  Example
      5.1.  Step 1: Discover Target Services
@@ -204,8 +204,7 @@ Table of Contents
       context, ensuring accurate and up-to-date authorization
       information.  This enables per-subject and per-client results,
       which is essential when the set of available target services
-      varies by user or client.  Static configurations cannot
-      accommodate these per-subject or per-client variations.
+      varies by user or client.
 
 2.  Conventions and Definitions
 
@@ -244,7 +243,7 @@ Table of Contents
    MUST be UTF-8 as specified in Appendix B of [RFC6749].  If a
    parameter is included more than once in the request, the
    authorization server MUST return an error response with the error
-   code invalid_request as described in Section 3.3.
+   code invalid_request as described in Section 3.4.
 
 3.1.1.  Request Parameters
 
@@ -276,7 +275,7 @@ Table of Contents
    authentication is required by the authorization server but not
    provided in the request, the authorization server MUST return an
    error response with the error code invalid_client as described in
-   Section 3.3.  A public client that does not authenticate MAY identify
+   Section 3.4.  A public client that does not authenticate MAY identify
    itself with the client_id parameter; the authorization server
    determines the trust it places in such an unauthenticated identifier,
    and MAY base its results on the subject token alone when no client
@@ -291,13 +290,13 @@ Table of Contents
        subject_token_type parameters are not empty strings.  If either
        parameter is an empty string, the authorization server MUST
        return an error response with the error code invalid_request as
-       described in Section 3.3.
+       described in Section 3.4.
 
    2.  The authorization server MUST validate that the
        subject_token_type parameter is a valid URI.  If the format is
        invalid (e.g., not a valid absolute URI or URN), the
        authorization server MUST return an error response with the error
-       code invalid_request as described in Section 3.3.
+       code invalid_request as described in Section 3.4.
 
    3.  The authorization server MUST determine whether it supports the
        indicated token type.  This determination is an implementation
@@ -306,7 +305,7 @@ Table of Contents
        or any combination thereof.  If the subject_token_type is not
        supported by the authorization server for the given context, the
        authorization server MUST return an error response with the error
-       code unsupported_token_type as described in Section 3.3.
+       code unsupported_token_type as described in Section 3.4.
 
    4.  The authorization server MUST validate the subject_token
        according to the rules for the indicated token type.  The
@@ -331,7 +330,7 @@ Table of Contents
    5.  If the subject_token is invalid for any reason (e.g., malformed,
        expired, revoked, or does not match the subject_token_type), the
        authorization server MUST return an error response with the error
-       code invalid_request as described in Section 3.3.
+       code invalid_request as described in Section 3.4.
 
    6.  The authorization server MUST evaluate the subject_token in
        conjunction with the requesting client's permissions (the
@@ -376,11 +375,11 @@ Table of Contents
    element in the array represents a target service that the client is
    authorized to request in a subsequent token exchange operation.
 
-   Empty strings are not valid property values.  The authorization
-   server MUST NOT include an optional property whose value would be an
-   empty string, an empty array, or an array containing only empty
-   strings; it MUST omit the property instead.  A REQUIRED property MUST
-   have a non-empty value.
+   Empty and null values are not valid property values.  The
+   authorization server MUST NOT include an optional property whose
+   value would be null, an empty string, an empty array, or an array
+   containing an empty string; it MUST omit the property instead.  A
+   REQUIRED property MUST have a non-empty value.
 
    Each target service object contains the following properties:
 
@@ -395,7 +394,7 @@ Table of Contents
       tenant target service that shares an authorization server and/or
       resource across tenants, a distinct audience value is returned per
       tenant and is used verbatim by the client as the token exchange
-      audience parameter; see Section 3.2.3.
+      audience parameter; see Section 3.3.
 
    tenant  OPTIONAL.  A machine-readable identifier for the tenant of a
       multi-tenant target service.  The issued token represents this
@@ -423,8 +422,9 @@ Table of Contents
       OAuth 2.0 scope values, as defined in Section 3.3 of [RFC6749],
       that are available for this target service.  Each scope value MUST
       conform to the scope syntax defined in Section 3.3 of [RFC6749].
-      The authorization server determines which scopes to return based
-      on its authorization policy evaluation, which is implementation-
+      If present, the value MUST contain at least one scope value.  The
+      authorization server determines which scopes to return based on
+      its authorization policy evaluation, which is implementation-
       specific.  The scopes returned SHOULD be those that would be
       authorized in a subsequent token exchange request per Section 2.1
       of [RFC8693].
@@ -449,12 +449,12 @@ Table of Contents
 
    client_id  OPTIONAL.  The OAuth 2.0 client identifier that the client
       uses with the target service when presenting the issued token (see
-      Section 3.2.3).  This property supports multi-tenant target
-      services that require a distinct client registration for each
-      tenant.  The client is expected to possess credentials for the
-      indicated client identifier where client authentication applies.
-      If omitted, the client uses a client identity it determines is
-      appropriate by other means.
+      Section 3.3).  This property supports multi-tenant target services
+      that require a distinct client registration for each tenant.  The
+      client is expected to possess credentials for the indicated client
+      identifier where client authentication applies.  If omitted, the
+      client uses a client identity it determines is appropriate by
+      other means.
 
    Extensions to this specification MAY define additional properties for
    the response object or for target service objects.  Clients MUST
@@ -471,7 +471,7 @@ Table of Contents
    object is the aggregate set of scopes available for that combination,
    rather than one of several alternative scope bundles.  A multi-tenant
    target service is represented as one target service object per
-   tenant, each with a distinct audience value (see Section 3.2.3).  The
+   tenant, each with a distinct audience value (see Section 3.3).  The
    audience value therefore distinguishes the tenants.
 
    If no target services are available for the given subject token and
@@ -521,7 +521,7 @@ Content-Type: application/json
   ]
 }
 
-3.2.3.  Multi-Tenant Target Services
+3.3.  Multi-Tenant Target Services
 
    A target service may be multi-tenant, sharing the same authorization
    server and/or the same resource across two or more tenants, where the
@@ -610,7 +610,7 @@ Content-Type: application/json
    corresponding client_id, if present and where client authentication
    applies.
 
-3.3.  Error Response
+3.4.  Error Response
 
    If the request failed, the authorization server returns an error
    response as defined in Section 5.2 of [RFC6749].  The response MUST
@@ -622,11 +622,18 @@ Content-Type: application/json
    unsupported_token_type  The authorization server does not support the
       subject token type indicated by the subject_token_type parameter.
 
+   The HTTP status code is determined as specified in Section 5.2 of
+   [RFC6749].  In particular, when the error is invalid_client and the
+   client attempted to authenticate via the Authorization request header
+   field, the authorization server responds with HTTP 401 (Unauthorized)
+   and includes a WWW-Authenticate response header field; otherwise it
+   responds with HTTP 400 (Bad Request).
+
    When the authorization server rate-limits a client (see Section 6.4),
    it MAY respond with HTTP 429 (Too Many Requests) and SHOULD include a
    Retry-After header field.
 
-3.3.1.  Error Response Example
+3.4.1.  Error Response Example
 
    The following is an example of an error response:
 
@@ -773,7 +780,7 @@ Content-Type: application/json
    the client authentication methods defined in Section 2.3 of
    [RFC6749].  If client authentication is required but not provided,
    the authorization server MUST return an error response with the error
-   code invalid_client as described in Section 3.3.
+   code invalid_client as described in Section 3.4.
 
 6.3.  Authorization Policy Enforcement
 
@@ -1036,6 +1043,12 @@ Document History
       and subject-token-validation text, moved the Authorization Server
       Metadata section ahead of the worked example, and aligned IANA
       change controllers.
+
+   *  Extended the empty-value rule to cover null and arrays containing
+      empty strings; restored the requirement that a present scope
+      contain at least one value; specified that invalid_client uses
+      HTTP 401 per Section 5.2 of [RFC6749]; and promoted Multi-Tenant
+      Target Services to a top-level subsection of the endpoint section.
 
    -01
 
