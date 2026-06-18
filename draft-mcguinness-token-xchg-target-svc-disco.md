@@ -34,6 +34,7 @@ author:
 
 normative:
   RFC6749:
+  RFC6755:
   RFC8259:
   RFC8707:
   RFC8414:
@@ -41,7 +42,6 @@ normative:
   RFC9111:
 
 informative:
-  RFC6755:
   RFC7523:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
@@ -350,7 +350,7 @@ The client begins with a subject access token issued by Domain A and calls the t
       ]
     }
 
-From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that a JWT `jwt-bearer` authorization grant is supported for this target service.
+From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The `supported_token_types` value tells the client that, in the subsequent token exchange, it may request a JWT to be presented to the target service as a `jwt-bearer` authorization grant {{RFC7523}}.
 
 ## Step 2: Determine Token Types (Optional)
 
@@ -496,6 +496,7 @@ The authors would like to thank the following individuals who contributed ideas,
 * Narrowed the abstract's claim about accepted subject token types.
 * Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant `audience` and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.
 * Extended the empty-value rule to cover `null` and arrays containing empty strings; restored the requirement that a present `scope` contain at least one value; specified that `invalid_client` uses HTTP 401 per {{Section 5.2 of RFC6749}}; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.
+* Moved {{RFC6755}} to normative (the `subject_token_type` registration is stated with BCP 14 "SHOULD"), and clarified in the example that a discovered `urn:ietf:params:oauth:grant-type:jwt-bearer` value is requested via token exchange and later presented to the target service as a `jwt-bearer` authorization grant.
 
 -01
 
