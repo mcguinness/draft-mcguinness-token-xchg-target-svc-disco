@@ -15,7 +15,7 @@ Expires: 20 December 2026                                           Okta
 Abstract
 
    This specification defines a method for OAuth 2.0 clients to discover
-   the set of available Token Exchange targets (such as audiences,
+   the set of available Token Exchange Targets (such as audiences,
    resources, scopes, and token types) for a given subject token when
    performing OAuth 2.0 Token Exchange.  The discovery endpoint accepts
    a subject token of any type the authorization server supports,
@@ -128,7 +128,7 @@ Table of Contents
    downstream service.  This enables controlled cross-domain access,
    removes the confused-deputy problem by ensuring tokens are explicitly
    targeted to the correct service, and avoids requiring direct trust
-   between the original token issuer and the target service.
+   between the original token issuer and the Target Service.
 
    Authorization Servers may be capable of issuing tokens to multiple
    services for a given subject token and client, but the client must
@@ -141,7 +141,7 @@ Table of Contents
    This specification defines the OAuth 2.0 Token Exchange Target
    Service Discovery Endpoint, a standardized mechanism that enables
    clients to dynamically discover the set of available Token Exchange
-   targets (such as audiences, resources, scopes, and token types) for a
+   Targets (such as audiences, resources, scopes, and token types) for a
    given subject token.  The authorization server evaluates both the
    subject token and the client's permissions and returns only the
    values the client is authorized to request.
@@ -174,18 +174,18 @@ Table of Contents
       to seamlessly connect to cross-domain resources and act on behalf
       of the user to access APIs.
 
-   *  Multi-tenant target services that share the same authorization
+   *  Multi-tenant Target Services that share the same authorization
       server and/or resource across tenants, where the tenant is
       identified by a claim in the issued token.  In these scenarios,
       the resource indicator alone cannot distinguish the tenants, so
-      discovery enables a client to learn the distinct target services
+      discovery enables a client to learn the distinct Target Services
       available per tenant and to present a tenant selection to the end
       user.
 
    This specification provides the following benefits:
 
    *  *Dynamic Discovery*: Eliminates static configuration requirements
-      by enabling clients to discover available Token Exchange targets
+      by enabling clients to discover available Token Exchange Targets
       at runtime, reducing integration failures and improving developer
       experience.
 
@@ -193,7 +193,7 @@ Table of Contents
       replacing proprietary APIs and improving interoperability across
       OAuth 2.0 implementations.
 
-   *  *Real-Time Authorization*: Returns Token Exchange targets based on
+   *  *Real-Time Authorization*: Returns Token Exchange Targets based on
       real-time policy evaluation, client permissions, and subject token
       context, ensuring accurate and up-to-date authorization
       information.  This enables per-subject and per-client results,
@@ -208,11 +208,26 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
+   This document uses the following terms:
+
+   Target Service  A downstream service that a client accesses using a
+      token obtained through OAuth 2.0 Token Exchange [RFC8693].  A
+      Target Service may be multi-tenant (see Section 3.4).
+
+   Token Exchange Target  A combination of Token Exchange request
+      parameters (an audience and, where applicable, resource, scope,
+      and requested token type(s)) that the authorization server has
+      authorized for a given subject token and requesting client.  A
+      Token Exchange Target is returned by the discovery endpoint as an
+      element of the supported_targets array; it identifies how a client
+      may obtain a token for a Target Service and does not assert that
+      the service is reachable or operational.
+
 3.  Token Exchange Target Service Discovery Endpoint
 
    This specification defines a new endpoint for OAuth 2.0 Authorization
    Servers that enables clients to discover the set of available Token
-   Exchange targets (such as audiences, resources, scopes, and token
+   Exchange Targets (such as audiences, resources, scopes, and token
    types) for a given subject token when performing OAuth 2.0 Token
    Exchange [RFC8693].
 
@@ -347,7 +362,7 @@ Table of Contents
    6.  The authorization server MUST evaluate the subject_token in
        conjunction with the requesting client's permissions (the
        authenticated client, when client authentication is used) to
-       determine which Token Exchange targets are available for
+       determine which Token Exchange Targets are available for
        discovery.  The specific authorization policy evaluation
        mechanism is implementation-specific and MAY be based on scopes,
        claims, resource-based access control, or other authorization
@@ -387,17 +402,10 @@ client_id=client-A
 
    If the request is valid and authorized, the authorization server
    returns a JSON [RFC8259] object containing a supported_targets
-   property: an array of the Token Exchange targets available to the
-   client.  A Token Exchange target is a combination of OAuth 2.0 Token
-   Exchange [RFC8693] request parameters (an audience and, where
-   applicable, resource, scope, and requested token type(s)) that the
-   authorization server has authorized for the given subject token and
-   requesting client.  To perform a token exchange, the client selects
-   one target and uses its values as the corresponding request
-   parameters.  A target does not assert that the underlying service is
-   reachable or operational; it asserts only that, at the time of
-   discovery, the authorization server is prepared to issue a token for
-   those parameters (Section 5.3).
+   property: an array of the Token Exchange Targets (see Section 2)
+   available to the client.  To perform a token exchange, the client
+   selects one target and uses its values as the corresponding request
+   parameters.
 
    Empty and null values are not valid property values.  The
    authorization server MUST NOT include an optional property whose
@@ -409,27 +417,27 @@ client_id=client-A
 
    audience  REQUIRED.  The value the client uses, verbatim, as the
       audience parameter in a subsequent token exchange request,
-      identifying the target service as defined in Section 2.1 of
+      identifying the Target Service as defined in Section 2.1 of
       [RFC8693].  Its syntax is authorization-server-defined unless
       constrained by a profile of this specification; the client MUST
       treat it as opaque and MUST NOT assume it is a URI.  If the value
       is a URI that does not itself provide a usable location (for
       example, a URN), the authorization server SHOULD also return a
-      resource property that provides one.  A multi-tenant target
-      service returns a distinct audience value per tenant; see
+      resource property that provides one.  A multi-tenant Target
+      Service returns a distinct audience value per tenant; see
       Section 3.4.
 
    tenant  OPTIONAL.  A machine-readable identifier for the tenant of a
-      multi-tenant target service.  The issued token represents this
-      tenant using the claim defined by the token format and target
-      service (for example, the aud_tenant claim when the Identity
+      multi-tenant Target Service.  The issued token represents this
+      tenant using the claim defined by the token format and Target
+      Service (for example, the aud_tenant claim when the Identity
       Assertion Authorization Grant
       [I-D.oauth-identity-assertion-authz-grant] is used); the specific
       claim name and encoding are outside the scope of this
-      specification.  This property is included only when the target
-      service is multi-tenant and the authorization server knows the
+      specification.  This property is included only when the Target
+      Service is multi-tenant and the authorization server knows the
       tenant identifier.  It is descriptive: it lets the client
-      correlate a target service with the tenant context of the
+      correlate a Target Service with the tenant context of the
       resulting issued token, and is not used as a selector in the token
       exchange request (the audience value selects the tenant).
 
@@ -456,22 +464,22 @@ client_id=client-A
       token exchange operation.  Each string MUST be a valid absolute
       URI.  A token type identifier MAY be any URI, as permitted by
       Section 3 of [RFC8693], not only those enumerated there.  In
-      particular, to request a JWT that is to be presented to the target
-      service as a jwt-bearer authorization grant [RFC7523], the grant
+      particular, to request a JWT that is to be presented to the Target
+      Service as a jwt-bearer authorization grant [RFC7523], the grant
       type identifier urn:ietf:params:oauth:grant-type:jwt-bearer is
       used as the token type value; this conveys the JWT's intended use,
       which the generic urn:ietf:params:oauth:token-type:jwt identifier
       does not.  If omitted, the client may use any token type supported
       by the authorization server.
 
-   display_name  OPTIONAL.  A human-readable name for the target
-      service, suitable for display to an end user (for example, in a
+   display_name  OPTIONAL.  A human-readable name for the Target
+      Service, suitable for display to an end user (for example, in a
       service picker).  This value is intended for presentation only and
       MUST NOT be used as a token exchange parameter.
 
    client_id  OPTIONAL.  The OAuth 2.0 client identifier that the client
-      uses with the target service when presenting the issued token (see
-      Section 3.4).  This property supports multi-tenant target services
+      uses with the Target Service when presenting the issued token (see
+      Section 3.4).  This property supports multi-tenant Target Services
       that require a distinct client registration for each tenant.  The
       client is expected to possess credentials for the indicated client
       identifier where client authentication applies.  If omitted, the
@@ -491,11 +499,11 @@ client_id=client-A
    be returned only when they differ in their resource set.  Because
    each key appears at most once, a target's scope is the aggregate set
    of scopes authorized for that key, rather than one of several
-   alternative scope bundles.  A multi-tenant target service is
+   alternative scope bundles.  A multi-tenant Target Service is
    represented as one target per tenant, each with a distinct audience
    (see Section 3.4), so the audience distinguishes the tenants.
 
-   If no Token Exchange targets are available for the given subject
+   If no Token Exchange Targets are available for the given subject
    token and client, the authorization server returns a JSON object with
    an empty supported_targets array: {"supported_targets": []}.
 
@@ -544,7 +552,7 @@ Content-Type: application/json
 
 3.4.  Multi-Tenant Target Services
 
-   A target service may be multi-tenant, sharing the same authorization
+   A Target Service may be multi-tenant, sharing the same authorization
    server and/or the same resource across two or more tenants, where the
    tenant is identified by a claim in the issued token.  For example, an
    authorization server as.saas.example may host two tenants, dev and
@@ -554,40 +562,40 @@ Content-Type: application/json
 
    To support this case without changing the OAuth 2.0 Token Exchange
    [RFC8693] request contract, the authorization server represents each
-   tenant of a multi-tenant target service as a separate target object
+   tenant of a multi-tenant Target Service as a separate target object
    with a distinct audience value.  As described for the audience
    property, the client uses the discovered value verbatim as the
    audience parameter in the subsequent token exchange request, and the
    authorization server resolves it to the tenant-specific audience and
    tenant context in the issued token.  The claim that conveys the
    tenant in the issued token is determined by the token format and
-   target service (for example, the aud_tenant claim when the Identity
+   Target Service (for example, the aud_tenant claim when the Identity
    Assertion Authorization Grant
    [I-D.oauth-identity-assertion-authz-grant] is used) and is outside
    the scope of this specification.
 
-   When a target service is multi-tenant, the authorization server
+   When a Target Service is multi-tenant, the authorization server
    SHOULD include the tenant property so that the client can correlate
-   the target service with the tenant context of the resulting issued
+   the Target Service with the tenant context of the resulting issued
    token, and SHOULD include the display_name property so that a client
    can present a tenant picker to an end user.
 
-   If a multi-tenant target service requires a distinct client
+   If a multi-tenant Target Service requires a distinct client
    registration for each tenant, the authorization server MAY include
    the client_id property in each target object to indicate the client
    identifier the client uses with that tenant when presenting the
    issued token.  The issued token is not necessarily presented through
-   token exchange: depending on the target service, it may be an
+   token exchange: depending on the Target Service, it may be an
    authorization grant, such as an ID-JAG
    [I-D.oauth-identity-assertion-authz-grant], that the client redeems
-   at the target service's authorization server (where this client_id is
+   at the Target Service's authorization server (where this client_id is
    used for client authentication), or an access token that the client
    presents directly to a resource server.  If a shared client
    registration is used across tenants, the client_id property is
    omitted.
 
    The following is a non-normative example of a discovery response for
-   a multi-tenant target service with two tenants that share the same
+   a multi-tenant Target Service with two tenants that share the same
    resource:
 
    HTTP/1.1 200 OK
@@ -625,7 +633,7 @@ Content-Type: application/json
    Example Staging").  Once the user selects a tenant, the client
    performs the token exchange using the corresponding audience value
    (for example, urn:saas:tenant:dev).  When the resulting issued token
-   is later presented at the target service, the client uses the
+   is later presented at the Target Service, the client uses the
    corresponding client_id, if present and where client authentication
    applies.
 
@@ -674,7 +682,7 @@ Content-Type: application/json
 
    The client begins with a subject access token issued by Domain A and
    calls the target service discovery endpoint to learn which Token
-   Exchange targets are available.
+   Exchange Targets are available.
 
 4.1.1.  Discovery Request
 
@@ -712,7 +720,7 @@ Content-Type: application/json
    https://api.domainB.example/inventory and the scopes orders.read and
    inventory.read.  The supported_token_types value tells the client
    that, in the subsequent token exchange, it may request a JWT to be
-   presented to the target service as a jwt-bearer authorization grant
+   presented to the Target Service as a jwt-bearer authorization grant
    [RFC7523].
 
 4.2.  Step 2: Determine Token Types (Optional)
@@ -722,7 +730,7 @@ Content-Type: application/json
    it listed urn:ietf:params:oauth:grant-type:jwt-bearer, so the client
    proceeds directly to the token exchange.  When a discovery response
    omits supported_token_types, the client determines the requestable
-   token types from the target service's documentation or other out-of-
+   token types from the Target Service's documentation or other out-of-
    band configuration.
 
 4.3.  Step 3: Perform Token Exchange
@@ -763,7 +771,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
    }
 
    The client now holds a Domain-B-scoped JWT token that can be used to
-   access the target service, derived from Domain A's access token
+   access the Target Service, derived from Domain A's access token
    through the token exchange process.
 
 5.  Security Considerations
@@ -791,7 +799,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 5.3.  Authorization Policy Enforcement
 
    The authorization server MUST evaluate both the subject token and the
-   client's permissions when determining which Token Exchange targets to
+   client's permissions when determining which Token Exchange Targets to
    return.  The server MUST only return targets that the client is
    authorized to request in a subsequent token exchange operation.  The
    specific authorization policy evaluation mechanism is implementation-
@@ -801,8 +809,8 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 5.4.  Information Disclosure
 
-   The discovery endpoint reveals information about which target
-   services are available for a given subject token and client.  This
+   The discovery endpoint reveals information about which Target
+   Services are available for a given subject token and client.  This
    information could be used by an attacker to enumerate authorization
    relationships.  To mitigate this risk:
 
@@ -819,7 +827,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 
 5.5.  Multi-Tenant Information Disclosure
 
-   For multi-tenant target services, the tenant, display_name, and
+   For multi-tenant Target Services, the tenant, display_name, and
    client_id properties reveal the existence of specific tenants and,
    where present, the per-tenant client registration topology of the
    authorization server.  This information could be used by an attacker
@@ -849,16 +857,16 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
 6.  Privacy Considerations
 
    The discovery endpoint returns information about authorization
-   relationships between subjects, clients, and target services.  This
+   relationships between subjects, clients, and Target Services.  This
    information may be considered privacy-sensitive, as it reveals:
 
-   *  Which target services a subject is authorized to access
+   *  Which Target Services a subject is authorized to access
 
-   *  The scope of permissions available for each target service
+   *  The scope of permissions available for each Target Service
 
    *  The existence of authorization relationships
 
-   *  For multi-tenant target services, the specific tenants a subject
+   *  For multi-tenant Target Services, the specific tenants a subject
       is associated with or authorized to access, as conveyed by the
       tenant, display_name, and client_id properties
 
@@ -868,7 +876,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
       authenticated client is authorized to know
 
    *  The authorization server SHOULD apply the principle of least
-      privilege when determining which Token Exchange targets to return
+      privilege when determining which Token Exchange Targets to return
 
    *  The authorization server SHOULD only disclose tenant-identifying
       properties (tenant, display_name, and client_id) for the tenants
@@ -996,7 +1004,7 @@ Document History
 
    -02
 
-   *  Added optional support for multi-tenant target services that share
+   *  Added optional support for multi-tenant Target Services that share
       an authorization server and/or resource across tenants,
       introducing the optional tenant, display_name, and client_id
       properties and defining the audience property as the exact value
@@ -1059,13 +1067,13 @@ Document History
    *  Moved [RFC6755] to normative (the subject_token_type registration
       is stated with BCP 14 "SHOULD"), and clarified in the example that
       a discovered urn:ietf:params:oauth:grant-type:jwt-bearer value is
-      requested via token exchange and later presented to the target
-      service as a jwt-bearer authorization grant.
+      requested via token exchange and later presented to the Target
+      Service as a jwt-bearer authorization grant.
 
    *  Editorial: relocated Authorization Server Metadata to a subsection
       of the endpoint section so the endpoint URL is discovered before
-      it is used; reworded summary text from "target services" to "Token
-      Exchange targets" to avoid implying the endpoint discovers live
+      it is used; reworded summary text from "Target Services" to "Token
+      Exchange Targets" to avoid implying the endpoint discovers live
       service availability; tightened the introduction; and added client
       authentication to the discovery and token exchange examples
       consistently.
@@ -1076,12 +1084,14 @@ Document History
       profiled, and the duplicate description in the multi-tenant
       section was removed.
 
-   *  Clarified the discovery model: defined a "Token Exchange target"
-      as a pre-authorized combination of Token Exchange request
-      parameters (not a live service), renamed each response element
-      from "target service object" to "target object", and restated the
-      uniqueness rule in terms of a target's (audience, resource set)
-      key.  No wire identifiers changed.
+   *  Clarified the discovery model: added formal definitions of "Target
+      Service" (the real downstream service) and "Token Exchange Target"
+      (a pre-authorized combination of Token Exchange request
+      parameters, not a live service) to Conventions and Definitions,
+      renamed each response element from "Target Service object" to
+      "target object", and restated the uniqueness rule in terms of a
+      target's (audience, resource set) key.  No wire identifiers
+      changed.
 
    -01
 
