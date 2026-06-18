@@ -86,7 +86,7 @@ This specification provides the following benefits:
 
 * **Standardization**: Provides a standardized discovery mechanism, replacing proprietary APIs and improving interoperability across OAuth 2.0 implementations.
 
-* **Real-Time Authorization**: Returns target services based on real-time policy evaluation, client permissions, and subject token context, ensuring accurate and up-to-date authorization information. This enables per-subject and per-client results, which is essential when the set of available target services varies by user or client. Static configurations cannot accommodate these per-subject or per-client variations.
+* **Real-Time Authorization**: Returns target services based on real-time policy evaluation, client permissions, and subject token context, ensuring accurate and up-to-date authorization information. This enables per-subject and per-client results, which is essential when the set of available target services varies by user or client.
 
 # Conventions and Definitions
 
@@ -164,7 +164,7 @@ Because the response contains sensitive, per-subject and per-client authorizatio
 
 If the request is valid and authorized, the authorization server returns a JSON {{RFC8259}} object containing a `supported_targets` property with an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
 
-Empty strings are not valid property values. The authorization server MUST NOT include an optional property whose value would be an empty string, an empty array, or an array containing only empty strings; it MUST omit the property instead. A REQUIRED property MUST have a non-empty value.
+Empty and null values are not valid property values. The authorization server MUST NOT include an optional property whose value would be `null`, an empty string, an empty array, or an array containing an empty string; it MUST omit the property instead. A REQUIRED property MUST have a non-empty value.
 
 Each target service object contains the following properties:
 
@@ -178,7 +178,7 @@ resource
 : OPTIONAL. A single resource indicator value or an array of resource indicator values, as defined in {{Section 2 of RFC8707}}, available for this target service. Each value MUST be an absolute URI and MUST NOT include a fragment component, per {{Section 2 of RFC8707}}. If present as an array, the array entries correspond to repeated `resource` parameters in the subsequent token exchange request.
 
 scope
-: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target service. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
+: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target service. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. If present, the value MUST contain at least one scope value. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 supported_token_types
 : OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the target service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. If omitted, the client may use any token type supported by the authorization server.
@@ -231,7 +231,7 @@ The following is an example of a successful discovery response:
       ]
     }
 
-### Multi-Tenant Target Services {#multi-tenant-target-services}
+## Multi-Tenant Target Services {#multi-tenant-target-services}
 
 A target service may be multi-tenant, sharing the same authorization server and/or the same resource across two or more tenants, where the tenant is identified by a claim in the issued token. For example, an authorization server `as.saas.example` may host two tenants, `dev` and `staging`, that share the resource `https://api.saas.example`. Because the resource (and authorization server) is shared, the resource indicator alone cannot distinguish the tenants.
 
@@ -281,6 +281,8 @@ If the request failed, the authorization server returns an error response as def
 
 unsupported_token_type
 : The authorization server does not support the subject token type indicated by the `subject_token_type` parameter.
+
+The HTTP status code is determined as specified in {{Section 5.2 of RFC6749}}. In particular, when the error is `invalid_client` and the client attempted to authenticate via the `Authorization` request header field, the authorization server responds with HTTP 401 (Unauthorized) and includes a `WWW-Authenticate` response header field; otherwise it responds with HTTP 400 (Bad Request).
 
 When the authorization server rate-limits a client (see {{information-disclosure}}), it MAY respond with HTTP 429 (Too Many Requests) and SHOULD include a `Retry-After` header field.
 
@@ -493,6 +495,7 @@ The authors would like to thank the following individuals who contributed ideas,
 * Switched the caching reference to RFC 9111 (normative) and made no-store the default with bounded private caching as an opt-in.
 * Narrowed the abstract's claim about accepted subject token types.
 * Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant `audience` and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.
+* Extended the empty-value rule to cover `null` and arrays containing empty strings; restored the requirement that a present `scope` contain at least one value; specified that `invalid_client` uses HTTP 401 per {{Section 5.2 of RFC6749}}; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.
 
 -01
 
