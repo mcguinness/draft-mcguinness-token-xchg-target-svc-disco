@@ -58,7 +58,7 @@ informative:
 
 --- abstract
 
-This specification defines a method for OAuth 2.0 clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts a subject token of any type the authorization server supports, identified by a token type URI, and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
+This specification defines a method for OAuth 2.0 clients to discover the set of available target services (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts a subject token of any type the authorization server supports, identified by a token type URI, and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
 
 --- middle
 
@@ -68,7 +68,7 @@ OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued 
 
 Authorization Servers may be capable of issuing tokens to multiple services for a given subject token and client, but the client must already know which values it may request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures, particularly when subjects are authorized to access only a subset of available services.
 
-This specification defines the OAuth 2.0 Token Exchange Target Service Discovery Endpoint, a standardized mechanism that enables clients to dynamically discover the set of available Token Exchange targets (audiences, resources, and scopes) for a given subject token. The authorization server evaluates both the subject token and the client's permissions and returns only the values the client is authorized to request.
+This specification defines the OAuth 2.0 Token Exchange Target Service Discovery Endpoint, a standardized mechanism that enables clients to dynamically discover the set of available Token Exchange targets (such as audiences, resources, scopes, and token types) for a given subject token. The authorization server evaluates both the subject token and the client's permissions and returns only the values the client is authorized to request.
 
 This extension is especially valuable in scenarios requiring identity chaining and cross-domain authorization:
 
@@ -76,7 +76,7 @@ This extension is especially valuable in scenarios requiring identity chaining a
 
 * Cross-boundary deployments where downstream services exist in separate administrative, organizational, or cloud domains requiring strict control over token issuance and acceptance. Unlike progressive token exchange which focuses on permission transformation within a single domain, this scenario addresses the challenge of discovering available target services across distinct trust boundaries where authorization policies are independently managed. Discovery is essential here because authorization policies and available target services change dynamically across these boundaries, and static configuration cannot reflect real-time policy decisions or account for varying permissions across different administrative domains.
 
-* Single Sign-On (SSO) to API flows, such as those enabled by the Identity Assertion Authorization Grant (ID-JAG) {{I-D.oauth-identity-assertion-authz-grant}}, where a client needs to seamlessly connect to cross-domain resources and act on behalf of the user to access APIs
+* Single Sign-On (SSO) to API flows, such as those enabled by the Identity Assertion Authorization Grant (ID-JAG) {{I-D.oauth-identity-assertion-authz-grant}}, where a client needs to seamlessly connect to cross-domain resources and act on behalf of the user to access APIs.
 
 * Multi-tenant target services that share the same authorization server and/or resource across tenants, where the tenant is identified by a claim in the issued token. In these scenarios, the resource indicator alone cannot distinguish the tenants, so discovery enables a client to learn the distinct target services available per tenant and to present a tenant selection to the end user.
 
@@ -94,7 +94,7 @@ This specification provides the following benefits:
 
 # Token Exchange Target Service Discovery Endpoint
 
-This specification defines a new endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
+This specification defines a new endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available target services (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
 
 The endpoint is identified by the Authorization Server metadata parameter `token_exchange_target_service_discovery_endpoint`, as defined in {{authorization-server-metadata}}.
 
@@ -120,7 +120,7 @@ The client MAY include additional parameters as defined by extensions, and the a
 
 The authorization server identifies the requesting client in order to evaluate its permissions ({{authorization-policy-enforcement}}). Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in {{Section 2.3 of RFC6749}} and extensions. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in {{error-response}}. A public client that does not authenticate MAY identify itself with the `client_id` parameter; the authorization server determines the trust it places in such an unauthenticated identifier, and MAY base its results on the subject token alone when no client identity is established.
 
-### Subject Token Processing
+### Subject Token Processing {#subject-token-processing}
 
 The authorization server MUST process the `subject_token` parameter according to the following rules:
 
@@ -140,7 +140,7 @@ The authorization server MUST process the `subject_token` parameter according to
 
 5. If the `subject_token` is invalid for any reason (e.g., malformed, expired, revoked, or does not match the `subject_token_type`), the authorization server MUST return an error response with the error code `invalid_request` as described in {{error-response}}.
 
-6. The authorization server MUST evaluate the `subject_token` in conjunction with the requesting client's permissions (the authenticated client, when client authentication is used) to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or properties that would contain empty strings.
+6. The authorization server MUST evaluate the `subject_token` in conjunction with the requesting client's permissions (the authenticated client, when client authentication is used) to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models.
 
 ### Request Example
 
@@ -164,34 +164,30 @@ Because the response contains sensitive, per-subject and per-client authorizatio
 
 If the request is valid and authorized, the authorization server returns a JSON {{RFC8259}} object containing a `supported_targets` property with an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
 
+Empty strings are not valid property values. The authorization server MUST NOT include an optional property whose value would be an empty string, an empty array, or an array containing only empty strings; it MUST omit the property instead. A REQUIRED property MUST have a non-empty value.
+
 Each target service object contains the following properties:
 
 audience
-: REQUIRED. A string value indicating an available audience value for token exchange, as defined in {{Section 2.1 of RFC8693}}. The following apply:
-
-    * The `audience` value is the logical name of the target service and, per {{Section 2.1 of RFC8693}}, is not required to be a URI. It MAY be an opaque or authorization-server-local identifier.
-    * Empty strings are not supported. The response MUST contain a non-empty value.
-    * If the `audience` value is a URI but not a URL (for example, a URN) and does not provide a location, the authorization server SHOULD return a `resource` property that contains a location.
-    * For a multi-tenant target service that shares an authorization server and/or resource across tenants (see {{multi-tenant-target-services}}), the authorization server returns a distinct `audience` value for each tenant.
-    * The client uses the `audience` value verbatim as the `audience` parameter in the subsequent token exchange request, and the authorization server resolves it to the tenant-specific audience and tenant context in the issued token.
+: REQUIRED. A string value indicating an available audience value for token exchange, as defined in {{Section 2.1 of RFC8693}}. The `audience` value is the logical name of the target service and, per {{Section 2.1 of RFC8693}}, is not required to be a URI; it MAY be an opaque or authorization-server-local identifier. If the `audience` value is a URI but not a URL (for example, a URN) and does not provide a location, the authorization server SHOULD return a `resource` property that contains a location. For a multi-tenant target service that shares an authorization server and/or resource across tenants, a distinct `audience` value is returned per tenant and is used verbatim by the client as the token exchange `audience` parameter; see {{multi-tenant-target-services}}.
 
 tenant
-: OPTIONAL. A string value containing a machine-readable identifier for the tenant of a multi-tenant target service. When present, this value identifies the tenant of the target service. The issued token represents this tenant using the claim defined by the token format and target service (for example, the `aud_tenant` claim when the Identity Assertion Authorization Grant {{I-D.oauth-identity-assertion-authz-grant}} is used). The specific claim name and encoding are outside the scope of this specification. This property is included only when the target service is multi-tenant and the authorization server knows the tenant identifier. Empty strings are not supported. If present, the value MUST be a non-empty string. This property is descriptive and is intended to let the client correlate a target service with the tenant context of the resulting issued token. It is not used as a selector in the token exchange request (the `audience` value selects the tenant, as described above).
+: OPTIONAL. A machine-readable identifier for the tenant of a multi-tenant target service. The issued token represents this tenant using the claim defined by the token format and target service (for example, the `aud_tenant` claim when the Identity Assertion Authorization Grant {{I-D.oauth-identity-assertion-authz-grant}} is used); the specific claim name and encoding are outside the scope of this specification. This property is included only when the target service is multi-tenant and the authorization server knows the tenant identifier. It is descriptive: it lets the client correlate a target service with the tenant context of the resulting issued token, and is not used as a selector in the token exchange request (the `audience` value selects the tenant).
 
 resource
-: OPTIONAL. A single resource indicator value or an array of resource indicator values, as defined in {{Section 2 of RFC8707}}, available for this target service. Each value MUST be an absolute URI and MUST NOT include a fragment component, per {{Section 2 of RFC8707}}. Empty strings are not supported. If present as a string, it MUST contain one such URI. If present as an array, the array MUST NOT be empty and each element MUST contain one such URI; the array entries correspond to repeated `resource` parameters in the subsequent token exchange request. If no resources are available for a target service, this property MUST be omitted from the response rather than including an empty string, empty array, or null value.
+: OPTIONAL. A single resource indicator value or an array of resource indicator values, as defined in {{Section 2 of RFC8707}}, available for this target service. Each value MUST be an absolute URI and MUST NOT include a fragment component, per {{Section 2 of RFC8707}}. If present as an array, the array entries correspond to repeated `resource` parameters in the subsequent token exchange request.
 
 scope
-: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target service. Each individual scope value in the list MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. Empty strings are not supported. If the property is present, the string MUST contain at least one non-empty scope value. If no scopes are available for a target service, this property MUST be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
+: OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target service. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the target service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. Empty strings are not supported. Array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this property MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the target service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. If omitted, the client may use any token type supported by the authorization server.
 
 display_name
-: OPTIONAL. A human-readable name for the target service, suitable for display to an end user (for example, in a service picker). This value is intended for presentation only and MUST NOT be used as a token exchange parameter. Empty strings are not supported. If present, the value MUST be a non-empty string. If no display name is available, this property MUST be omitted rather than including an empty string.
+: OPTIONAL. A human-readable name for the target service, suitable for display to an end user (for example, in a service picker). This value is intended for presentation only and MUST NOT be used as a token exchange parameter.
 
 client_id
-: OPTIONAL. The OAuth 2.0 client identifier that the client uses with the target service when presenting the issued token (see {{multi-tenant-target-services}}). This property supports multi-tenant target services that require a distinct client registration for each tenant. The client is expected to possess credentials for the indicated client identifier where client authentication applies. Empty strings are not supported. If present, the value MUST be a non-empty string. If omitted, the client uses a client identity it determines is appropriate by other means.
+: OPTIONAL. The OAuth 2.0 client identifier that the client uses with the target service when presenting the issued token (see {{multi-tenant-target-services}}). This property supports multi-tenant target services that require a distinct client registration for each tenant. The client is expected to possess credentials for the indicated client identifier where client authentication applies. If omitted, the client uses a client identity it determines is appropriate by other means.
 
 Extensions to this specification MAY define additional properties for the response object or for target service objects. Clients MUST ignore any properties they do not understand.
 
@@ -199,7 +195,7 @@ Multiple target service objects for the same `audience` MAY be returned when the
 
 If no target services are available for the given subject token and client, the authorization server returns a JSON object with an empty `supported_targets` array: `{"supported_targets": []}`.
 
-Discovery results reflect authorization at the time of the request and are not a guarantee. The authorization server re-evaluates authorization when the subsequent token exchange is performed, and that exchange MAY still fail (for example, if policy changed, the subject token expired, or the target became unavailable in the interim). A client MUST handle errors from the token exchange request {{RFC8693}} rather than assuming a discovered target will succeed.
+Discovery results reflect authorization at the time of the request and are not a guarantee. The authorization server re-evaluates authorization when the subsequent token exchange is performed, and that exchange might still fail (for example, if policy changed, the subject token expired, or the target became unavailable in the interim). A client MUST handle errors from the token exchange request {{RFC8693}} rather than assuming a discovered target will succeed.
 
 ### Response Example
 
@@ -300,6 +296,20 @@ The following is an example of an error response:
       "error_description": "The subject token is invalid or expired"
     }
 
+# Authorization Server Metadata {#authorization-server-metadata}
+
+This specification defines the following authorization server metadata {{RFC8414}} parameter to enable clients to discover the token exchange target service discovery endpoint:
+
+token_exchange_target_service_discovery_endpoint
+: URL of the token exchange target service discovery endpoint. This URL MUST use the `https` scheme. The authorization server SHOULD publish this metadata value.
+
+The following is a non-normative example of the metadata:
+
+    {
+      "issuer": "https://as.example.com",
+      "token_exchange_target_service_discovery_endpoint": "https://as.example.com/target-discovery"
+    }
+
 # Example
 
 This example demonstrates a complete cross-domain identity chaining workflow described in {{I-D.ietf-oauth-identity-chaining}} with the addition of the token exchange target service discovery endpoint.
@@ -378,32 +388,11 @@ The client now performs a token exchange with Domain A's token endpoint, request
 
 The client now holds a Domain-B-scoped JWT token that can be used to access the target service, derived from Domain A's access token through the token exchange process.
 
-# Authorization Server Metadata {#authorization-server-metadata}
-
-This specification defines the following authorization server metadata {{RFC8414}} parameter to enable clients to discover the token exchange target service discovery endpoint:
-
-token_exchange_target_service_discovery_endpoint
-: URL of the token exchange target service discovery endpoint. This URL MUST use the `https` scheme. The authorization server SHOULD publish this metadata value.
-
-The following is a non-normative example of the metadata:
-
-    {
-      "issuer": "https://as.example.com",
-      "token_exchange_target_service_discovery_endpoint": "https://as.example.com/target-discovery"
-    }
-
 # Security Considerations
 
 ## Subject Token Validation
 
-The authorization server MUST validate the subject token provided in the request. The validation process MUST verify that:
-
-* The subject token is valid and not expired
-* The subject token type matches the `subject_token_type` parameter
-* The subject token is associated with the authenticated client (if client authentication is required)
-* The subject token has not been revoked, where revocation status is applicable and available for the token type
-
-If any validation fails, the authorization server MUST return an `invalid_request` error as described in {{error-response}}.
+The authorization server MUST validate the subject token as specified in {{subject-token-processing}}. In particular, it MUST verify that the token is well-formed for the indicated type, is correctly signed by a trusted issuer, has not expired, has not been revoked (where revocation status is applicable and available), and, where client authentication is required, is associated with the authenticated client. A token that fails validation MUST be rejected as described in {{subject-token-processing}}.
 
 ## Client Authentication
 
@@ -461,7 +450,7 @@ Metadata Name: `token_exchange_target_service_discovery_endpoint`
 
 Metadata Description: URL of the token exchange target service discovery endpoint
 
-Change Controller: IESG
+Change Controller: IETF
 
 Specification Document(s): \[\[ This document \]\]
 
@@ -475,7 +464,7 @@ Error Usage Location: Token exchange target service discovery endpoint response
 
 Related Protocol Extension: OAuth 2.0 Token Exchange Target Service Discovery
 
-Change Controller: IESG
+Change Controller: IETF
 
 Specification Document(s): \[\[ This document \]\]
 
@@ -503,6 +492,7 @@ The authors would like to thank the following individuals who contributed ideas,
 * Softened the subject-token revocation check to where revocation status is applicable and available.
 * Switched the caching reference to RFC 9111 (normative) and made no-store the default with bounded private caching as an opt-in.
 * Narrowed the abstract's claim about accepted subject token types.
+* Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant `audience` and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.
 
 -01
 
