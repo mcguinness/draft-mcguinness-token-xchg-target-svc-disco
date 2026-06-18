@@ -34,7 +34,7 @@ author:
 
 normative:
   RFC6749:
-  RFC6755:
+  RFC7523:
   RFC8259:
   RFC8707:
   RFC8414:
@@ -42,7 +42,9 @@ normative:
   RFC9111:
 
 informative:
-  RFC7523:
+  RFC6585:
+  RFC6755:
+  RFC9110:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
     title: OAuth 2.0 Identity Assertion JWT Authorization Grant
@@ -64,7 +66,7 @@ This specification defines a method for OAuth 2.0 clients to discover the set of
 
 # Introduction
 
-OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued in one security domain to an Authorization Server and securely trade it for a new token issued for another domain. The exchanged token is minted with the target server's token requirements, including its own audience, resource indicators, and scopes, so it becomes valid and enforceable for the desired downstream service. This enables controlled cross-domain access, removes the confused-deputy problem by ensuring tokens are explicitly targeted to the correct service, and avoids requiring direct trust between the original token issuer and the Target Service.
+OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued in one security domain to an authorization server and securely trade it for a new token issued for another domain. The exchanged token is minted with the Target Service's token requirements, including its own audience, resource indicators, and scopes, so it becomes valid and enforceable for the desired downstream service. This enables controlled cross-domain access, removes the confused-deputy problem by ensuring tokens are explicitly targeted to the correct service, and avoids requiring direct trust between the original token issuer and the Target Service.
 
 Authorization Servers may be capable of issuing tokens to multiple services for a given subject token and client, but the client must already know which values it may request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures, particularly when subjects are authorized to access only a subset of available services.
 
@@ -102,9 +104,9 @@ Token Exchange Target
 
 # Token Exchange Target Service Discovery Endpoint
 
-This specification defines a new endpoint for OAuth 2.0 Authorization Servers that enables clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
+This specification defines a new endpoint for OAuth 2.0 authorization servers that enables clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
 
-The endpoint is identified by the Authorization Server metadata parameter `token_exchange_target_service_discovery_endpoint`, as defined in {{authorization-server-metadata}}.
+The endpoint is identified by the authorization server metadata parameter `token_exchange_target_service_discovery_endpoint`, as defined in {{authorization-server-metadata}}.
 
 ## Authorization Server Metadata {#authorization-server-metadata}
 
@@ -124,7 +126,7 @@ The following is a non-normative example of the metadata:
 
 The client makes a request to the token exchange target service discovery endpoint by sending an HTTP POST request to the endpoint URL. The client MUST use TLS as specified in {{Section 1.6 of RFC6749}}.
 
-The endpoint URL MUST be obtained from the Authorization Server's metadata document {{RFC8414}} using the `token_exchange_target_service_discovery_endpoint` parameter. The endpoint URL is an absolute URL.
+The endpoint URL MUST be obtained from the authorization server's metadata document {{RFC8414}} using the `token_exchange_target_service_discovery_endpoint` parameter. The endpoint URL is an absolute URL.
 
 The client sends the parameters using the `application/x-www-form-urlencoded` format per Appendix B of {{RFC6749}}. Character encoding MUST be UTF-8 as specified in Appendix B of {{RFC6749}}. If a parameter is included more than once in the request, the authorization server MUST return an error response with the error code `invalid_request` as described in {{error-response}}.
 
@@ -206,7 +208,7 @@ scope
 : OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. If present, the value MUST contain at least one scope value. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the Target Service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, when that URI identifies the requested token type or token usage profile understood by the authorization server and client. For example, `urn:ietf:params:oauth:grant-type:jwt-bearer` identifies a JWT intended to be presented as a JWT bearer authorization grant as defined by {{RFC7523}}; this specification intentionally permits the RFC 7523 grant-type URI to be used in this role, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not convey. If omitted, the client may use any token type supported by the authorization server.
 
 display_name
 : OPTIONAL. A human-readable name for the Target Service, suitable for display to an end user (for example, in a service picker). This value is intended for presentation only and MUST NOT be used as a token exchange parameter.
@@ -309,7 +311,7 @@ unsupported_token_type
 
 The HTTP status code is determined as specified in {{Section 5.2 of RFC6749}}. In particular, when the error is `invalid_client` and the client attempted to authenticate via the `Authorization` request header field, the authorization server responds with HTTP 401 (Unauthorized) and includes a `WWW-Authenticate` response header field; otherwise it responds with HTTP 400 (Bad Request).
 
-When the authorization server rate-limits a client (see {{information-disclosure}}), it MAY respond with HTTP 429 (Too Many Requests) and SHOULD include a `Retry-After` header field.
+When the authorization server rate-limits a client (see {{information-disclosure}}), it MAY respond with HTTP 429 (Too Many Requests) {{RFC6585}} and SHOULD include a `Retry-After` header field {{RFC9110}}.
 
 ### Error Response Example
 
@@ -433,7 +435,7 @@ For multi-tenant Target Services, the `tenant`, `display_name`, and `client_id` 
 
 ## Token Confidentiality
 
-The subject token is transmitted in the request. The authorization server MUST require the use of TLS as specified in {{Section 1.6 of RFC6749}} to protect the token in transit.
+The subject token is transmitted in the request. The authorization server MUST require the use of TLS as specified in {{Section 1.6 of RFC6749}} to protect the token in transit. Because the request body carries a live credential, the authorization server MUST NOT record the `subject_token` (or other equally sensitive request content) in logs, audit records, or error reports, and SHOULD avoid emitting it where it could be retained by intermediaries.
 
 ## Error Handling
 
@@ -510,10 +512,12 @@ The authors would like to thank the following individuals who contributed ideas,
 * Narrowed the abstract's claim about accepted subject token types.
 * Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant `audience` and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.
 * Extended the empty-value rule to cover `null` and arrays containing empty strings; restored the requirement that a present `scope` contain at least one value; specified that `invalid_client` uses HTTP 401 per {{Section 5.2 of RFC6749}}; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.
-* Moved {{RFC6755}} to normative (the `subject_token_type` registration is stated with BCP 14 "SHOULD"), and clarified in the example that a discovered `urn:ietf:params:oauth:grant-type:jwt-bearer` value is requested via token exchange and later presented to the Target Service as a `jwt-bearer` authorization grant.
+* Clarified in the example that a discovered `urn:ietf:params:oauth:grant-type:jwt-bearer` value is requested via token exchange and later presented to the Target Service as a `jwt-bearer` authorization grant.
 * Editorial: relocated Authorization Server Metadata to a subsection of the endpoint section so the endpoint URL is discovered before it is used; reworded summary text from "Target Services" to "Token Exchange Targets" to avoid implying the endpoint discovers live service availability; tightened the introduction; and added client authentication to the discovery and token exchange examples consistently.
 * Resolved the conflicting `audience` syntax language: the property is now defined once as the exact, opaque value the client uses in Token Exchange, with authorization-server-defined syntax unless profiled, and the duplicate description in the multi-tenant section was removed.
-* Clarified the discovery model: added formal definitions of "Target Service" (the real downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters, not a live service) to Conventions and Definitions, renamed each response element from "Target Service object" to "target object", and restated the uniqueness rule in terms of a target's `(audience, resource set)` key. No wire identifiers changed.
+* Clarified the discovery model: added formal definitions of "Target Service" (the real downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters, not a live service) to Conventions and Definitions, renamed each response element from "target service object" to "target object", and restated the uniqueness rule in terms of a target's `(audience, resource set)` key. No wire identifiers changed.
+* Pre-publication cleanup: referenced {{RFC6585}} and {{RFC9110}} for the HTTP 429 / `Retry-After` guidance; added a requirement that the authorization server not log the `subject_token`; kept {{RFC6755}} informative (consistent with {{RFC8693}}); and made the capitalization of "authorization server" consistent.
+* Tightened the `supported_token_types` language so a token type identifier MUST identify the requested token type or token usage profile understood by the authorization server and client, and promoted {{RFC7523}} to normative, since the draft now relies on it to define the protocol-significant `urn:ietf:params:oauth:grant-type:jwt-bearer` token type value.
 
 -01
 
