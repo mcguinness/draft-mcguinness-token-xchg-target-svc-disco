@@ -38,10 +38,11 @@ normative:
   RFC8707:
   RFC8414:
   RFC8693:
+  RFC9111:
 
 informative:
-  RFC7234:
   RFC6755:
+  RFC7523:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
     title: OAuth 2.0 Identity Assertion JWT Authorization Grant
@@ -57,7 +58,7 @@ informative:
 
 --- abstract
 
-This specification defines a method for OAuth 2.0 clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts any subject token type registered in the OAuth URI Registry and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
+This specification defines a method for OAuth 2.0 clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts a subject token of any type the authorization server supports, identified by a token type URI, and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
 
 --- middle
 
@@ -115,9 +116,9 @@ subject_token
 subject_token_type
 : REQUIRED. A string value containing a URI, as described in {{Section 3 of RFC8693}}, that indicates the type of the `subject_token` parameter. This identifier MUST be a valid URI, and SHOULD be registered in the "OAuth URI Registry" as established by {{RFC6755}}.
 
-The client MAY include additional parameters as defined by extensions and the authorization server MUST ignore unknown parameters.
+The client MAY include additional parameters as defined by extensions, and the authorization server MUST ignore parameters it does not understand. The parameters of the client authentication method in use (for example, `client_id`, `client_secret`, or `client_assertion` and `client_assertion_type`) are part of that method and are not treated as unknown parameters.
 
-Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in {{Section 2.3 of RFC6749}} and extensions. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in {{error-response}}.
+The authorization server identifies the requesting client in order to evaluate its permissions ({{authorization-policy-enforcement}}). Client authentication MAY be required by the authorization server. The means of client authentication are defined by the authorization server and MAY include any method supported by the authorization server, including those defined in {{Section 2.3 of RFC6749}} and extensions. If client authentication is required by the authorization server but not provided in the request, the authorization server MUST return an error response with the error code `invalid_client` as described in {{error-response}}. A public client that does not authenticate MAY identify itself with the `client_id` parameter; the authorization server determines the trust it places in such an unauthenticated identifier, and MAY base its results on the subject token alone when no client identity is established.
 
 ### Subject Token Processing
 
@@ -134,12 +135,12 @@ The authorization server MUST process the `subject_token` parameter according to
    * The token's signature (if applicable) is valid and can be verified using the appropriate cryptographic keys
    * The token was issued by a trusted issuer
    * The token has not expired
-   * The token has not been revoked
+   * The token has not been revoked, where revocation status is applicable and available for the token type; a token known to be revoked MUST be rejected
    * The token is associated with the authenticated client, if client authentication is required
 
 5. If the `subject_token` is invalid for any reason (e.g., malformed, expired, revoked, or does not match the `subject_token_type`), the authorization server MUST return an error response with the error code `invalid_request` as described in {{error-response}}.
 
-6. The authorization server MUST evaluate the `subject_token` in conjunction with the authenticated client's permissions to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or properties that would contain empty strings.
+6. The authorization server MUST evaluate the `subject_token` in conjunction with the requesting client's permissions (the authenticated client, when client authentication is used) to determine which target services are available for discovery. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, or other authorization models. When constructing the response, the authorization server MUST omit any target service objects or properties that would contain empty strings.
 
 ### Request Example
 
@@ -157,7 +158,7 @@ The following is an example of a discovery request:
 
 The authorization server validates the request and returns a response with the discovery results. The `Content-Type` header of the response MUST be set to `application/json`.
 
-The authorization server MAY include HTTP cache validators (such as `ETag` or `Last-Modified` headers) and expiration times (such as `Cache-Control` or `Expires` headers) in the response to enable conditional requests by the client, as specified in {{RFC7234}}. Because the response is specific to the subject token and authenticated client and is authorization-filtered, any cache directives MUST mark the response as private (for example, `Cache-Control: private`). Shared caches MUST NOT store it.
+Because the response contains sensitive, per-subject and per-client authorization information, the authorization server SHOULD set `Cache-Control: no-store` by default. A deployment that accepts the associated risk MAY instead permit bounded private caching; in that case the cache directives MUST mark the response as private (for example, `Cache-Control: private`) and shared caches MUST NOT store it. The authorization server MAY include cache validators (such as `ETag` or `Last-Modified` headers) to enable conditional requests by the client, as specified in {{RFC9111}}.
 
 ### Successful Response
 
@@ -178,13 +179,13 @@ tenant
 : OPTIONAL. A string value containing a machine-readable identifier for the tenant of a multi-tenant target service. When present, this value identifies the tenant of the target service. The issued token represents this tenant using the claim defined by the token format and target service (for example, the `aud_tenant` claim when the Identity Assertion Authorization Grant {{I-D.oauth-identity-assertion-authz-grant}} is used). The specific claim name and encoding are outside the scope of this specification. This property is included only when the target service is multi-tenant and the authorization server knows the tenant identifier. Empty strings are not supported. If present, the value MUST be a non-empty string. This property is descriptive and is intended to let the client correlate a target service with the tenant context of the resulting issued token. It is not used as a selector in the token exchange request (the `audience` value selects the tenant, as described above).
 
 resource
-: OPTIONAL. A string value containing an absolute URI, or an array of string values each containing a URI, indicating available resource indicator values, as defined in {{Section 2 of RFC8707}}. Empty strings are not supported. If present as a string, the string MUST contain a non-empty URI. If present as an array, the array MUST contain at least one non-empty URI string and MUST NOT be empty. If no resources are available for a target service, this property MUST be omitted from the response rather than including an empty string, empty array, or null value.
+: OPTIONAL. A single resource indicator value or an array of resource indicator values, as defined in {{Section 2 of RFC8707}}, available for this target service. Each value MUST be an absolute URI and MUST NOT include a fragment component, per {{Section 2 of RFC8707}}. Empty strings are not supported. If present as a string, it MUST contain one such URI. If present as an array, the array MUST NOT be empty and each element MUST contain one such URI; the array entries correspond to repeated `resource` parameters in the subsequent token exchange request. If no resources are available for a target service, this property MUST be omitted from the response rather than including an empty string, empty array, or null value.
 
 scope
 : OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target service. Each individual scope value in the list MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. Empty strings are not supported. If the property is present, the string MUST contain at least one non-empty scope value. If no scopes are available for a target service, this property MUST be omitted from the response rather than including an empty string. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI. Empty strings are not supported. Array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this property MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target service in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the target service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. Empty strings are not supported. Array elements MUST contain non-empty URI strings. If the array would be empty or contain only empty strings, this property MUST be omitted from the response. If omitted, the client may use any token type supported by the authorization server.
 
 display_name
 : OPTIONAL. A human-readable name for the target service, suitable for display to an end user (for example, in a service picker). This value is intended for presentation only and MUST NOT be used as a token exchange parameter. Empty strings are not supported. If present, the value MUST be a non-empty string. If no display name is available, this property MUST be omitted rather than including an empty string.
@@ -194,7 +195,7 @@ client_id
 
 Extensions to this specification MAY define additional properties for the response object or for target service objects. Clients MUST ignore any properties they do not understand.
 
-Multiple target service objects for the same audience MAY be returned with different resource(s) and scopes. The combination of `audience` and `resource` (the entire set of resources, when present) MUST be unique within the `supported_targets` array. That is, no two objects in the `supported_targets` array may have both the same `audience` value and the same set of `resource` values (when comparing arrays, the order of elements does not matter, but the complete set must match). A multi-tenant target service is represented as one target service object per tenant, each with a distinct `audience` value (see {{multi-tenant-target-services}}). The `audience` value therefore distinguishes the tenants.
+Multiple target service objects for the same `audience` MAY be returned when they have different `resource` sets. The combination of `audience` and `resource` (the entire set of resources, when present) MUST be unique within the `supported_targets` array: no two objects may have both the same `audience` value and the same set of `resource` values (when comparing arrays, the order of elements does not matter, but the complete set must match). Because each `(audience, resource)` combination appears at most once, the `scope` of a target service object is the aggregate set of scopes available for that combination, rather than one of several alternative scope bundles. A multi-tenant target service is represented as one target service object per tenant, each with a distinct `audience` value (see {{multi-tenant-target-services}}). The `audience` value therefore distinguishes the tenants.
 
 If no target services are available for the given subject token and client, the authorization server returns a JSON object with an empty `supported_targets` array: `{"supported_targets": []}`.
 
@@ -221,7 +222,7 @@ The following is an example of a successful discovery response:
           "audience": "https://billing.provider.example",
           "scope": "customer.read customer.write",
           "supported_token_types": [
-            "urn:ietf:params:oauth:token-type:jwt-bearer"
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
           ]
         },
         {
@@ -257,7 +258,7 @@ The following is a non-normative example of a discovery response for a multi-ten
           "resource": "https://api.saas.example",
           "scope": "orders.read orders.write",
           "supported_token_types": [
-            "urn:ietf:params:oauth:token-type:jwt-bearer"
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
           ],
           "display_name": "SaaS Example Dev",
           "client_id": "client-dev"
@@ -268,7 +269,7 @@ The following is a non-normative example of a discovery response for a multi-ten
           "resource": "https://api.saas.example",
           "scope": "orders.read orders.write",
           "supported_token_types": [
-            "urn:ietf:params:oauth:token-type:jwt-bearer"
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
           ],
           "display_name": "SaaS Example Staging",
           "client_id": "client-staging"
@@ -331,17 +332,17 @@ The client begins with a subject access token issued by Domain A and calls the t
           "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
           "scope": "orders.read inventory.read",
           "supported_token_types": [
-            "urn:ietf:params:oauth:token-type:jwt-bearer"
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
           ]
         }
       ]
     }
 
-From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that JWT bearer tokens are supported for this target service.
+From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that a JWT `jwt-bearer` authorization grant is supported for this target service.
 
 ## Step 2: Determine Token Types (Optional)
 
-The discovery response's `supported_token_types` property indicates the token types the client may request for the target. In this example it listed `urn:ietf:params:oauth:token-type:jwt-bearer`, so the client proceeds directly to the token exchange. When a discovery response omits `supported_token_types`, the client determines the requestable token types from the target service's documentation or other out-of-band configuration.
+The discovery response's `supported_token_types` property indicates the token types the client may request for the target. In this example it listed `urn:ietf:params:oauth:grant-type:jwt-bearer`, so the client proceeds directly to the token exchange. When a discovery response omits `supported_token_types`, the client determines the requestable token types from the target service's documentation or other out-of-band configuration.
 
 ## Step 3: Perform Token Exchange
 
@@ -356,7 +357,7 @@ The client now performs a token exchange with Domain A's token endpoint, request
     grant_type=urn:ietf:params:oauth:grant-type:token-exchange
     &subject_token=SlAV32hkKG...ACCESSTOKEN...
     &subject_token_type=urn:ietf:params:oauth:token-type:access_token
-    &requested_token_type=urn:ietf:params:oauth:token-type:jwt-bearer
+    &requested_token_type=urn:ietf:params:oauth:grant-type:jwt-bearer
     &audience=https://api.domainB.example
     &resource=https://api.domainB.example/orders
     &resource=https://api.domainB.example/inventory
@@ -369,7 +370,7 @@ The client now performs a token exchange with Domain A's token endpoint, request
 
     {
       "access_token": "eyJraWQiOi...DOMAINB.JWT...",
-      "issued_token_type": "urn:ietf:params:oauth:token-type:jwt-bearer",
+      "issued_token_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
       "token_type": "N_A",
       "expires_in": 3600,
       "scope": "orders.read inventory.read"
@@ -400,7 +401,7 @@ The authorization server MUST validate the subject token provided in the request
 * The subject token is valid and not expired
 * The subject token type matches the `subject_token_type` parameter
 * The subject token is associated with the authenticated client (if client authentication is required)
-* The subject token has not been revoked
+* The subject token has not been revoked, where revocation status is applicable and available for the token type
 
 If any validation fails, the authorization server MUST return an `invalid_request` error as described in {{error-response}}.
 
@@ -408,7 +409,7 @@ If any validation fails, the authorization server MUST return an `invalid_reques
 
 The authorization server SHOULD require client authentication for the discovery endpoint to prevent unauthorized access to authorization information. The authorization server MUST support at least one of the client authentication methods defined in {{Section 2.3 of RFC6749}}. If client authentication is required but not provided, the authorization server MUST return an error response with the error code `invalid_client` as described in {{error-response}}.
 
-## Authorization Policy Enforcement
+## Authorization Policy Enforcement {#authorization-policy-enforcement}
 
 The authorization server MUST evaluate both the subject token and the client's permissions when determining which target services to return. The server MUST only return target services that the client is authorized to request in a subsequent token exchange operation. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, attribute-based access control, or other authorization models supported by the authorization server.
 
@@ -462,7 +463,21 @@ Metadata Description: URL of the token exchange target service discovery endpoin
 
 Change Controller: IESG
 
-Specification Document(s): [[ this document ]]
+Specification Document(s): \[\[ This document \]\]
+
+## OAuth Extensions Error Registry
+
+This specification registers the following error in the IANA "OAuth Extensions Error Registry" established by {{RFC6749}}, adding a usage location for the token exchange target service discovery endpoint. The error name `unsupported_token_type` is also registered for other usage locations (for example, the token revocation endpoint); this registration adds a distinct usage location and does not change the existing entries.
+
+Error Name: `unsupported_token_type`
+
+Error Usage Location: Token exchange target service discovery endpoint response
+
+Related Protocol Extension: OAuth 2.0 Token Exchange Target Service Discovery
+
+Change Controller: IESG
+
+Specification Document(s): \[\[ This document \]\]
 
 --- back
 
@@ -481,6 +496,13 @@ The authors would like to thank the following individuals who contributed ideas,
 * Required discovery responses to be marked private and not stored by shared caches.
 * Clarified that discovery results are point-in-time and not a guarantee: the subsequent token exchange is re-evaluated and may still fail.
 * Added HTTP 429 with `Retry-After` for rate limiting.
+* Replaced the invalid `urn:ietf:params:oauth:token-type:jwt-bearer` token type identifier; examples now use `urn:ietf:params:oauth:grant-type:jwt-bearer` as the token type value to denote a JWT presented as a `jwt-bearer` authorization grant {{RFC7523}}, and `supported_token_types` notes that any URI may be a token type identifier per {{Section 3 of RFC8693}}.
+* Clarified the client identity model (client authentication parameters versus unknown parameters, public-client identification) and that the requesting client's permissions are evaluated.
+* Registered a usage location for the `unsupported_token_type` error in the OAuth Extensions Error Registry.
+* Aligned the `resource` property with RFC 8707 (absolute URI, no fragment, repeated parameters); made `scope` the aggregate available set per audience and resource.
+* Softened the subject-token revocation check to where revocation status is applicable and available.
+* Switched the caching reference to RFC 9111 (normative) and made no-store the default with bounded private caching as an opt-in.
+* Narrowed the abstract's claim about accepted subject token types.
 
 -01
 
