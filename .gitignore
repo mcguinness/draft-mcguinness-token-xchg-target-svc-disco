@@ -22,3 +22,6 @@ draft-mcguinness-token-exchange-target-service-discovery.xml
 package-lock.json
 report.xml
 !requirements.txt
+
+# Generated build artifact (build to /tmp instead)
+draft-mcguinness-token-xchg-target-svc-disco.xml
