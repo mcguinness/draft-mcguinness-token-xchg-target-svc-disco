@@ -352,7 +352,7 @@ Table of Contents
    requests by the client, as specified in [RFC7234].  Because the
    response is specific to the subject token and authenticated client
    and is authorization-filtered, any cache directives MUST mark the
-   response as private (for example, Cache-Control: private); shared
+   response as private (for example, Cache-Control: private).  Shared
    caches MUST NOT store it.
 
 3.2.1.  Successful Response
@@ -367,20 +367,28 @@ Table of Contents
 
    audience  REQUIRED.  A string value indicating an available audience
       value for token exchange, as defined in Section 2.1 of [RFC8693].
-      The audience value is the logical name of the target service and,
-      per Section 2.1 of [RFC8693], is NOT required to be a URI; it MAY
-      be an opaque or authorization-server-local identifier.  Empty
-      strings are not supported and the response MUST contain a non-
-      empty value.  If the audience value is a URI but not a URL (e.g.,
-      a URN) and does not provide a location, the authorization server
-      SHOULD return a resource property that contains a location.  For a
-      multi-tenant target service that shares an authorization server
-      and/or resource across tenants (see Section 3.2.3), the
-      authorization server returns a distinct audience value for each
-      tenant.  The client uses the audience value verbatim as the
-      audience parameter in the subsequent token exchange request, and
-      the authorization server resolves it to the tenant-specific
-      audience and tenant context in the issued token.
+      The following apply:
+
+      *  The audience value is the logical name of the target service
+         and, per Section 2.1 of [RFC8693], is not required to be a URI.
+         It MAY be an opaque or authorization-server-local identifier.
+
+      *  Empty strings are not supported.  The response MUST contain a
+         non-empty value.
+
+      *  If the audience value is a URI but not a URL (for example, a
+         URN) and does not provide a location, the authorization server
+         SHOULD return a resource property that contains a location.
+
+      *  For a multi-tenant target service that shares an authorization
+         server and/or resource across tenants (see Section 3.2.3), the
+         authorization server returns a distinct audience value for each
+         tenant.
+
+      *  The client uses the audience value verbatim as the audience
+         parameter in the subsequent token exchange request, and the
+         authorization server resolves it to the tenant-specific
+         audience and tenant context in the issued token.
 
    tenant  OPTIONAL.  A string value containing a machine-readable
       identifier for the tenant of a multi-tenant target service.  When
@@ -388,14 +396,14 @@ Table of Contents
       The issued token represents this tenant using the claim defined by
       the token format and target service (for example, the aud_tenant
       claim when the Identity Assertion Authorization Grant
-      [I-D.oauth-identity-assertion-authz-grant] is used); the specific
+      [I-D.oauth-identity-assertion-authz-grant] is used).  The specific
       claim name and encoding are outside the scope of this
       specification.  This property is included only when the target
       service is multi-tenant and the authorization server knows the
-      tenant identifier.  Empty strings are not supported; if present,
+      tenant identifier.  Empty strings are not supported.  If present,
       the value MUST be a non-empty string.  This property is
       descriptive and is intended to let the client correlate a target
-      service with the tenant context of the resulting issued token; it
+      service with the tenant context of the resulting issued token.  It
       is not used as a selector in the token exchange request (the
       audience value selects the tenant, as described above).
 
@@ -426,7 +434,7 @@ Table of Contents
    supported_token_types  OPTIONAL.  An array of strings indicating the
       token types that may be requested for this target service in a
       subsequent token exchange operation.  Each string MUST be a valid
-      absolute URI.  Empty strings are not supported; array elements
+      absolute URI.  Empty strings are not supported.  Array elements
       MUST contain non-empty URI strings.  If the array would be empty
       or contain only empty strings, this property MUST be omitted from
       the response.  If omitted, the client may use any token type
@@ -436,7 +444,7 @@ Table of Contents
       service, suitable for display to an end user (for example, in a
       service picker).  This value is intended for presentation only and
       MUST NOT be used as a token exchange parameter.  Empty strings are
-      not supported; if present, the value MUST be a non-empty string.
+      not supported.  If present, the value MUST be a non-empty string.
       If no display name is available, this property MUST be omitted
       rather than including an empty string.
 
@@ -446,7 +454,7 @@ Table of Contents
       services that require a distinct client registration for each
       tenant.  The client is expected to possess credentials for the
       indicated client identifier where client authentication applies.
-      Empty strings are not supported; if present, the value MUST be a
+      Empty strings are not supported.  If present, the value MUST be a
       non-empty string.  If omitted, the client uses a client identity
       it determines is appropriate by other means.
 
@@ -463,7 +471,7 @@ Table of Contents
    of elements does not matter, but the complete set must match).  A
    multi-tenant target service is represented as one target service
    object per tenant, each with a distinct audience value (see
-   Section 3.2.3); the audience value therefore distinguishes the
+   Section 3.2.3).  The audience value therefore distinguishes the
    tenants.
 
    If no target services are available for the given subject token and
@@ -528,7 +536,7 @@ Content-Type: application/json
    tenant of a multi-tenant target service as a separate target service
    object with a distinct audience value.  As defined in Section 2.1 of
    [RFC8693], the audience value is the logical name of the target
-   service and need not be a URI; it MAY be an opaque, authorization-
+   service and need not be a URI.  It MAY be an opaque, authorization-
    server-local identifier.  The client uses the discovered audience
    value verbatim as the audience parameter in the subsequent token
    exchange request, and the authorization server resolves it to the
