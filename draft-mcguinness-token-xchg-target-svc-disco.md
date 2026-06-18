@@ -1,6 +1,6 @@
 ---
 title: "OAuth 2.0 Token Exchange Target Service Discovery"
-abbrev: Token Exchange Target Service Discovery"
+abbrev: "Token Exchange Target Service Discovery"
 docName: "draft-mcguinness-token-xchg-target-svc-disco-latest"
 category:  "std"
 workgroup: "Web Authorization Protocol"
@@ -34,7 +34,7 @@ author:
 
 normative:
   RFC6749:
-  RFC7159:
+  RFC8259:
   RFC8707:
   RFC8414:
   RFC8693:
@@ -63,7 +63,7 @@ This specification defines a method for OAuth 2.0 clients to discover the set of
 
 # Introduction
 
-OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued in one security domain to an Authorization Server and securely trade it for a new token issued for another domain. The exchanged token is minted with the target server’s token requirements, including its own audience, resource indicators, and scopes, so it becomes valid and enforceable for the desired downstream service. This enables controlled cross-domain access, removes the confused-deputy problem by ensuring tokens are explicitly targeted to the correct service, and avoids requiring direct trust between the original token issuer and the target service.
+OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued in one security domain to an Authorization Server and securely trade it for a new token issued for another domain. The exchanged token is minted with the target server's token requirements, including its own audience, resource indicators, and scopes, so it becomes valid and enforceable for the desired downstream service. This enables controlled cross-domain access, removes the confused-deputy problem by ensuring tokens are explicitly targeted to the correct service, and avoids requiring direct trust between the original token issuer and the target service.
 
 Authorization Servers may be capable of issuing tokens to multiple services for a given subject token and client, but the client must already know which values it may request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures, particularly when subjects are authorized to access only a subset of available services.
 
@@ -157,11 +157,11 @@ The following is an example of a discovery request:
 
 The authorization server validates the request and returns a response with the discovery results. The `Content-Type` header of the response MUST be set to `application/json`.
 
-The authorization server MAY include HTTP cache validators (such as `ETag` or `Last-Modified` headers) and expiration times (such as `Cache-Control` or `Expires` headers) in the response to enable conditional requests by the client, as specified in {{RFC7234}}.
+The authorization server MAY include HTTP cache validators (such as `ETag` or `Last-Modified` headers) and expiration times (such as `Cache-Control` or `Expires` headers) in the response to enable conditional requests by the client, as specified in {{RFC7234}}. Because the response is specific to the subject token and authenticated client and is authorization-filtered, any cache directives MUST mark the response as private (for example, `Cache-Control: private`); shared caches MUST NOT store it.
 
 ### Successful Response
 
-If the request is valid and authorized, the authorization server returns a JSON object containing a `supported_targets` property with an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
+If the request is valid and authorized, the authorization server returns a JSON {{RFC8259}} object containing a `supported_targets` property with an array of available token exchange targets. Each element in the array represents a target service that the client is authorized to request in a subsequent token exchange operation.
 
 Each target service object contains the following properties:
 
@@ -191,6 +191,8 @@ Extensions to this specification MAY define additional properties for the respon
 Multiple target service objects for the same audience MAY be returned with different resource(s) and scopes. The combination of `audience` and `resource` (the entire set of resources, when present) MUST be unique within the `supported_targets` array. That is, no two objects in the `supported_targets` array may have both the same `audience` value and the same set of `resource` values (when comparing arrays, the order of elements does not matter, but the complete set must match). A multi-tenant target service is represented as one target service object per tenant, each with a distinct `audience` value (see {{multi-tenant-target-services}}); the `audience` value therefore distinguishes the tenants.
 
 If no target services are available for the given subject token and client, the authorization server returns a JSON object with an empty `supported_targets` array: `{"supported_targets": []}`.
+
+Discovery results reflect authorization at the time of the request and are not a guarantee. The authorization server re-evaluates authorization when the subsequent token exchange is performed, and that exchange MAY still fail (for example, if policy changed, the subject token expired, or the target became unavailable in the interim). A client MUST handle errors from the token exchange request {{RFC8693}} rather than assuming a discovered target will succeed.
 
 ### Response Example
 
@@ -277,6 +279,8 @@ If the request failed, the authorization server returns an error response as def
 unsupported_token_type
 : The authorization server does not support the subject token type indicated by the `subject_token_type` parameter.
 
+When the authorization server rate-limits a client (see {{information-disclosure}}), it MAY respond with HTTP 429 (Too Many Requests) and SHOULD include a `Retry-After` header field.
+
 ### Error Response Example
 
 The following is an example of an error response:
@@ -329,29 +333,9 @@ The client begins with a subject access token issued by Domain A and calls the t
 
 From this response, the client learns that it may request a token exchange for the audience `https://api.domainB.example` with the resources `https://api.domainB.example/orders` and `https://api.domainB.example/inventory` and the scopes `orders.read` and `inventory.read`. The client also learns that JWT bearer tokens are supported for this target service.
 
-## Step 2: Discover Token Types (Optional)
+## Step 2: Determine Token Types (Optional)
 
-If the discovery response does not include `supported_token_types`, or if the client needs to verify token type support, the client may query the Authorization Server Metadata of Domain B to determine which token types are supported for the target service.
-
-### Metadata Request
-
-    GET https://as.domainB.example/.well-known/oauth-authorization-server HTTP/1.1
-    Host: as.domainB.example
-
-### Metadata Response
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json
-
-    {
-      "issuer": "https://as.domainB.example",
-      "token_endpoint": "https://as.domainB.example/token",
-      "requested_token_types_supported": [
-        "urn:ietf:params:oauth:token-type:jwt-bearer"
-      ]
-    }
-
-This confirms that Domain B supports JWT bearer tokens as a requested token type.
+The discovery response's `supported_token_types` property indicates the token types the client may request for the target. In this example it listed `urn:ietf:params:oauth:token-type:jwt-bearer`, so the client proceeds directly to the token exchange. When a discovery response omits `supported_token_types`, the client determines the requestable token types from the target service's documentation or other out-of-band configuration.
 
 ## Step 3: Perform Token Exchange
 
@@ -422,7 +406,7 @@ The authorization server SHOULD require client authentication for the discovery 
 
 The authorization server MUST evaluate both the subject token and the client's permissions when determining which target services to return. The server MUST only return target services that the client is authorized to request in a subsequent token exchange operation. The specific authorization policy evaluation mechanism is implementation-specific and MAY be based on scopes, claims, resource-based access control, attribute-based access control, or other authorization models supported by the authorization server.
 
-## Information Disclosure
+## Information Disclosure {#information-disclosure}
 
 The discovery endpoint reveals information about which target services are available for a given subject token and client. This information could be used by an attacker to enumerate authorization relationships. To mitigate this risk:
 
@@ -487,6 +471,10 @@ The authors would like to thank the following individuals who contributed ideas,
 -02
 
 * Added optional support for multi-tenant target services that share an authorization server and/or resource across tenants, introducing the optional `tenant`, `display_name`, and `client_id` properties and relaxing the `audience` property to the logical-name semantics of {{Section 2.1 of RFC8693}} so that a distinct opaque audience value per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.
+* Replaced the obsolete JSON reference RFC 7159 with RFC 8259 and corrected the `abbrev` value.
+* Required discovery responses to be marked private and not stored by shared caches.
+* Clarified that discovery results are point-in-time and not a guarantee: the subsequent token exchange is re-evaluated and may still fail.
+* Added HTTP 429 with `Retry-After` for rate limiting.
 
 -01
 
