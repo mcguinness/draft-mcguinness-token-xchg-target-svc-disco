@@ -53,11 +53,11 @@ informative:
         name: Karl McGuinness
       - ins: B. Campbell
         name: Brian Campbell
-    date: 2025
+    date: 2026
 
 --- abstract
 
-This specification defines a method for OAuth 2.0 clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts any subject token type registered in the OAuth Token Type Registry and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
+This specification defines a method for OAuth 2.0 clients to discover the set of available target services (audiences, resources, and scopes) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts any subject token type registered in the OAuth URI Registry and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
 
 --- middle
 
