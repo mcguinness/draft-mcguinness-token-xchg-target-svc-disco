@@ -34,6 +34,7 @@ author:
 
 normative:
   RFC6749:
+  RFC7523:
   RFC8259:
   RFC8707:
   RFC8414:
@@ -43,7 +44,6 @@ normative:
 informative:
   RFC6585:
   RFC6755:
-  RFC7523:
   RFC9110:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
@@ -208,7 +208,7 @@ scope
 : OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. If present, the value MUST contain at least one scope value. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 supported_token_types
-: OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, not only those enumerated there. In particular, to request a JWT that is to be presented to the Target Service as a `jwt-bearer` authorization grant {{RFC7523}}, the grant type identifier `urn:ietf:params:oauth:grant-type:jwt-bearer` is used as the token type value; this conveys the JWT's intended use, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not. If omitted, the client may use any token type supported by the authorization server.
+: OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, when that URI identifies the requested token type or token usage profile understood by the authorization server and client. For example, `urn:ietf:params:oauth:grant-type:jwt-bearer` identifies a JWT intended to be presented as a JWT bearer authorization grant as defined by {{RFC7523}}; this specification intentionally permits the RFC 7523 grant-type URI to be used in this role, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not convey. If omitted, the client may use any token type supported by the authorization server.
 
 display_name
 : OPTIONAL. A human-readable name for the Target Service, suitable for display to an end user (for example, in a service picker). This value is intended for presentation only and MUST NOT be used as a token exchange parameter.
@@ -517,6 +517,7 @@ The authors would like to thank the following individuals who contributed ideas,
 * Resolved the conflicting `audience` syntax language: the property is now defined once as the exact, opaque value the client uses in Token Exchange, with authorization-server-defined syntax unless profiled, and the duplicate description in the multi-tenant section was removed.
 * Clarified the discovery model: added formal definitions of "Target Service" (the real downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters, not a live service) to Conventions and Definitions, renamed each response element from "target service object" to "target object", and restated the uniqueness rule in terms of a target's `(audience, resource set)` key. No wire identifiers changed.
 * Pre-publication cleanup: referenced {{RFC6585}} and {{RFC9110}} for the HTTP 429 / `Retry-After` guidance; added a requirement that the authorization server not log the `subject_token`; kept {{RFC6755}} informative (consistent with {{RFC8693}}); and made the capitalization of "authorization server" consistent.
+* Tightened the `supported_token_types` language so a token type identifier MUST identify the requested token type or token usage profile understood by the authorization server and client, and promoted {{RFC7523}} to normative, since the draft now relies on it to define the protocol-significant `urn:ietf:params:oauth:grant-type:jwt-bearer` token type value.
 
 -01
 
