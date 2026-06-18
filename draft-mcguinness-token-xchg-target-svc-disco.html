@@ -1716,7 +1716,7 @@ Content-Type: application/json
 }
 </pre><a href="#section-5.1.2-1" class="pilcrow">¶</a>
 </div>
-<p id="section-5.1.2-2">From this response, the client learns that it may request a token exchange for the audience <code>https://api.domainB.example</code> with the resources <code>https://api.domainB.example/orders</code> and <code>https://api.domainB.example/inventory</code> and the scopes <code>orders.read</code> and <code>inventory.read</code>. The client also learns that a JWT <code>jwt-bearer</code> authorization grant is supported for this target service.<a href="#section-5.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.1.2-2">From this response, the client learns that it may request a token exchange for the audience <code>https://api.domainB.example</code> with the resources <code>https://api.domainB.example/orders</code> and <code>https://api.domainB.example/inventory</code> and the scopes <code>orders.read</code> and <code>inventory.read</code>. The <code>supported_token_types</code> value tells the client that, in the subsequent token exchange, it may request a JWT to be presented to the target service as a <code>jwt-bearer</code> authorization grant <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>.<a href="#section-5.1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1948,6 +1948,10 @@ Content-Type: application/json
         <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6749">https://www.rfc-editor.org/info/rfc6749</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC6755">[RFC6755]</dt>
+        <dd>
+<span class="refAuthor">Campbell, B.</span> and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"An IETF URN Sub-Namespace for OAuth"</span>, <span class="seriesInfo">RFC 6755</span>, <span class="seriesInfo">DOI 10.17487/RFC6755</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6755">https://www.rfc-editor.org/info/rfc6755</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8259">[RFC8259]</dt>
         <dd>
 <span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8259">https://www.rfc-editor.org/info/rfc8259</a>&gt;</span>. </dd>
@@ -1985,10 +1989,6 @@ Content-Type: application/json
 <a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="RFC6755">[RFC6755]</dt>
-        <dd>
-<span class="refAuthor">Campbell, B.</span> and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"An IETF URN Sub-Namespace for OAuth"</span>, <span class="seriesInfo">RFC 6755</span>, <span class="seriesInfo">DOI 10.17487/RFC6755</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6755">https://www.rfc-editor.org/info/rfc6755</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC7523">[RFC7523]</dt>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Campbell, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants"</span>, <span class="seriesInfo">RFC 7523</span>, <span class="seriesInfo">DOI 10.17487/RFC7523</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7523">https://www.rfc-editor.org/info/rfc7523</a>&gt;</span>. </dd>
@@ -2062,6 +2062,9 @@ Content-Type: application/json
 </li>
         <li class="normal" id="appendix-B-2.14">
           <p id="appendix-B-2.14.1">Extended the empty-value rule to cover <code>null</code> and arrays containing empty strings; restored the requirement that a present <code>scope</code> contain at least one value; specified that <code>invalid_client</code> uses HTTP 401 per <span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.<a href="#appendix-B-2.14.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-B-2.15">
+          <p id="appendix-B-2.15.1">Moved <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span> to normative (the <code>subject_token_type</code> registration is stated with BCP 14 "<span class="bcp14">SHOULD</span>"), and clarified in the example that a discovered <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> value is requested via token exchange and later presented to the target service as a <code>jwt-bearer</code> authorization grant.<a href="#appendix-B-2.15.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-B-3">-01<a href="#appendix-B-3" class="pilcrow">¶</a></p>

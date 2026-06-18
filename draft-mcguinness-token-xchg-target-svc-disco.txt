@@ -709,8 +709,10 @@ Content-Type: application/json
    exchange for the audience https://api.domainB.example with the
    resources https://api.domainB.example/orders and
    https://api.domainB.example/inventory and the scopes orders.read and
-   inventory.read.  The client also learns that a JWT jwt-bearer
-   authorization grant is supported for this target service.
+   inventory.read.  The supported_token_types value tells the client
+   that, in the subsequent token exchange, it may request a JWT to be
+   presented to the target service as a jwt-bearer authorization grant
+   [RFC7523].
 
 5.2.  Step 2: Determine Token Types (Optional)
 
@@ -923,6 +925,10 @@ Content-Type: application/json
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/info/rfc6749>.
 
+   [RFC6755]  Campbell, B. and H. Tschofenig, "An IETF URN Sub-Namespace
+              for OAuth", RFC 6755, DOI 10.17487/RFC6755, October 2012,
+              <https://www.rfc-editor.org/info/rfc6755>.
+
    [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
               Interchange Format", STD 90, RFC 8259,
               DOI 10.17487/RFC8259, December 2017,
@@ -957,10 +963,6 @@ Content-Type: application/json
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
 9.2.  Informative References
-
-   [RFC6755]  Campbell, B. and H. Tschofenig, "An IETF URN Sub-Namespace
-              for OAuth", RFC 6755, DOI 10.17487/RFC6755, October 2012,
-              <https://www.rfc-editor.org/info/rfc6755>.
 
    [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
               (JWT) Profile for OAuth 2.0 Client Authentication and
@@ -1049,6 +1051,12 @@ Document History
       contain at least one value; specified that invalid_client uses
       HTTP 401 per Section 5.2 of [RFC6749]; and promoted Multi-Tenant
       Target Services to a top-level subsection of the endpoint section.
+
+   *  Moved [RFC6755] to normative (the subject_token_type registration
+      is stated with BCP 14 "SHOULD"), and clarified in the example that
+      a discovered urn:ietf:params:oauth:grant-type:jwt-bearer value is
+      requested via token exchange and later presented to the target
+      service as a jwt-bearer authorization grant.
 
    -01
 
