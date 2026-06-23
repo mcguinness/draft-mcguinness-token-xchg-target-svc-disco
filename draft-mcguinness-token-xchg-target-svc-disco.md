@@ -236,7 +236,10 @@ The following is an example of a successful discovery response:
       "supported_targets": [
         {
           "audience": "https://api.example.com",
-          "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
+          "resource": [
+            "https://api.example.com/orders",
+            "https://api.example.com/inventory"
+          ],
           "scope": "orders.read inventory.read",
           "supported_token_types": [
             "urn:ietf:params:oauth:token-type:access_token"
@@ -355,7 +358,10 @@ The client begins with a subject access token issued by Domain A and calls the t
       "supported_targets": [
         {
           "audience": "https://api.domainB.example",
-          "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
+          "resource": [
+            "https://api.domainB.example/orders",
+            "https://api.domainB.example/inventory"
+          ],
           "scope": "orders.read inventory.read",
           "supported_token_types": [
             "urn:ietf:params:oauth:grant-type:jwt-bearer"
@@ -499,26 +505,18 @@ The authors would like to thank the following individuals who contributed ideas,
 
 -02
 
-* Added optional support for multi-tenant Target Services that share an authorization server and/or resource across tenants, introducing the optional `tenant`, `display_name`, and `client_id` properties and defining the `audience` property as the exact value to use in Token Exchange, with authorization-server-defined syntax (per {{Section 2.1 of RFC8693}}), so that a distinct audience value per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.
-* Replaced the obsolete JSON reference RFC 7159 with RFC 8259 and corrected the `abbrev` value.
-* Required discovery responses to be marked private and not stored by shared caches.
-* Clarified that discovery results are point-in-time and not a guarantee: the subsequent token exchange is re-evaluated and may still fail.
-* Added HTTP 429 with `Retry-After` for rate limiting.
-* Replaced the invalid `urn:ietf:params:oauth:token-type:jwt-bearer` token type identifier; examples now use `urn:ietf:params:oauth:grant-type:jwt-bearer` as the token type value to denote a JWT presented as a `jwt-bearer` authorization grant {{RFC7523}}, and `supported_token_types` notes that any URI may be a token type identifier per {{Section 3 of RFC8693}}.
-* Clarified the client identity model (client authentication parameters versus unknown parameters, public-client identification) and that the requesting client's permissions are evaluated.
-* Registered a usage location for the `unsupported_token_type` error in the OAuth Extensions Error Registry.
-* Aligned the `resource` property with RFC 8707 (absolute URI, no fragment, repeated parameters); made `scope` the aggregate available set per audience and resource.
-* Softened the subject-token revocation check to where revocation status is applicable and available.
-* Switched the caching reference to RFC 9111 (normative) and made no-store the default with bounded private caching as an opt-in.
-* Narrowed the abstract's claim about accepted subject token types.
-* Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant `audience` and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.
-* Extended the empty-value rule to cover `null` and arrays containing empty strings; restored the requirement that a present `scope` contain at least one value; specified that `invalid_client` uses HTTP 401 per {{Section 5.2 of RFC6749}}; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.
-* Clarified in the example that a discovered `urn:ietf:params:oauth:grant-type:jwt-bearer` value is requested via token exchange and later presented to the Target Service as a `jwt-bearer` authorization grant.
-* Editorial: relocated Authorization Server Metadata to a subsection of the endpoint section so the endpoint URL is discovered before it is used; reworded summary text from "Target Services" to "Token Exchange Targets" to avoid implying the endpoint discovers live service availability; tightened the introduction; and added client authentication to the discovery and token exchange examples consistently.
-* Resolved the conflicting `audience` syntax language: the property is now defined once as the exact, opaque value the client uses in Token Exchange, with authorization-server-defined syntax unless profiled, and the duplicate description in the multi-tenant section was removed.
-* Clarified the discovery model: added formal definitions of "Target Service" (the real downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters, not a live service) to Conventions and Definitions, renamed each response element from "target service object" to "target object", and restated the uniqueness rule in terms of a target's `(audience, resource set)` key. No wire identifiers changed.
-* Pre-publication cleanup: referenced {{RFC6585}} and {{RFC9110}} for the HTTP 429 / `Retry-After` guidance; added a requirement that the authorization server not log the `subject_token`; kept {{RFC6755}} informative (consistent with {{RFC8693}}); and made the capitalization of "authorization server" consistent.
-* Tightened the `supported_token_types` language so a token type identifier MUST identify the requested token type or token usage profile understood by the authorization server and client, and promoted {{RFC7523}} to normative, since the draft now relies on it to define the protocol-significant `urn:ietf:params:oauth:grant-type:jwt-bearer` token type value.
+* Added optional support for multi-tenant Target Services that share an authorization server and/or resource across tenants, via the optional `tenant`, `display_name`, and `client_id` properties and a new Multi-Tenant Target Services section; a distinct `audience` per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.
+* Added a terminology section defining "Target Service" (the downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters); named each response element a "target object"; and clarified that discovery returns authorized Token Exchange Targets, not an assertion that a service is reachable.
+* Defined the `audience` property as the exact, opaque value the client uses verbatim in Token Exchange, with authorization-server-defined syntax unless profiled, and specified that the `(audience, resource set)` pair uniquely identifies a target whose `scope` is the aggregate authorized for that pair.
+* Clarified requesting a JWT for use as an RFC 7523 `jwt-bearer` authorization grant: examples and `supported_token_types` use `urn:ietf:params:oauth:grant-type:jwt-bearer` as the token type value (replacing the invalid `urn:ietf:params:oauth:token-type:jwt-bearer`), a token type identifier must identify the requested token type or usage, and RFC 7523 is now normative.
+* Aligned the `resource` property with RFC 8707 (absolute URI, no fragment, array entries mapping to repeated `resource` parameters).
+* Consolidated empty-value handling into a single rule: optional properties with an empty string, empty array, or null value are omitted, and a present `scope` contains at least one value.
+* Clarified the client identity model (client authentication parameters are not unknown parameters; public-client identification) and that the requesting client's permissions are evaluated.
+* Switched the caching reference to RFC 9111 (normative): no-store by default, with bounded private caching as an opt-in and no shared-cache storage.
+* Defined error behavior: registered an `unsupported_token_type` usage location in the OAuth Extensions Error Registry, mapped `invalid_client` to HTTP 401 per RFC 6749, and added HTTP 429 with `Retry-After` (RFC 6585, RFC 9110) for rate limiting.
+* Strengthened security and privacy guidance: the subject token must not be logged, the subject-token revocation check applies where revocation status is available, and multi-tenant tenant/client information is disclosed only to authorized clients.
+* Moved the Authorization Server Metadata parameter into the endpoint section so the endpoint URL is discovered before it is used.
+* Editorial: replaced the obsolete RFC 7159 reference with RFC 8259, corrected the `abbrev` value, set IANA change controllers to IETF, added client authentication to the examples, narrowed the abstract, and made terminology and capitalization consistent.
 
 -01
 
