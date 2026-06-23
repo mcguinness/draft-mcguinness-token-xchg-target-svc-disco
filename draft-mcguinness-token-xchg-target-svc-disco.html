@@ -1565,7 +1565,10 @@ Content-Type: application/json
   "supported_targets": [
     {
       "audience": "https://api.example.com",
-      "resource": ["https://api.example.com/orders", "https://api.example.com/inventory"],
+      "resource": [
+        "https://api.example.com/orders",
+        "https://api.example.com/inventory"
+      ],
       "scope": "orders.read inventory.read",
       "supported_token_types": [
         "urn:ietf:params:oauth:token-type:access_token"
@@ -1723,7 +1726,10 @@ Content-Type: application/json
   "supported_targets": [
     {
       "audience": "https://api.domainB.example",
-      "resource": ["https://api.domainB.example/orders", "https://api.domainB.example/inventory"],
+      "resource": [
+        "https://api.domainB.example/orders",
+        "https://api.domainB.example/inventory"
+      ],
       "scope": "orders.read inventory.read",
       "supported_token_types": [
         "urn:ietf:params:oauth:grant-type:jwt-bearer"
@@ -2050,64 +2056,40 @@ Content-Type: application/json
 <p id="appendix-B-1">-02<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-B-2.1">
-          <p id="appendix-B-2.1.1">Added optional support for multi-tenant Target Services that share an authorization server and/or resource across tenants, introducing the optional <code>tenant</code>, <code>display_name</code>, and <code>client_id</code> properties and defining the <code>audience</code> property as the exact value to use in Token Exchange, with authorization-server-defined syntax (per <span><a href="https://rfc-editor.org/rfc/rfc8693#section-2.1" class="relref">Section 2.1</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>), so that a distinct audience value per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.1.1">Added optional support for multi-tenant Target Services that share an authorization server and/or resource across tenants, via the optional <code>tenant</code>, <code>display_name</code>, and <code>client_id</code> properties and a new Multi-Tenant Target Services section; a distinct <code>audience</code> per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.<a href="#appendix-B-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.2">
-          <p id="appendix-B-2.2.1">Replaced the obsolete JSON reference RFC 7159 with RFC 8259 and corrected the <code>abbrev</code> value.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.2.1">Added a terminology section defining "Target Service" (the downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters); named each response element a "target object"; and clarified that discovery returns authorized Token Exchange Targets, not an assertion that a service is reachable.<a href="#appendix-B-2.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.3">
-          <p id="appendix-B-2.3.1">Required discovery responses to be marked private and not stored by shared caches.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.3.1">Defined the <code>audience</code> property as the exact, opaque value the client uses verbatim in Token Exchange, with authorization-server-defined syntax unless profiled, and specified that the <code>(audience, resource set)</code> pair uniquely identifies a target whose <code>scope</code> is the aggregate authorized for that pair.<a href="#appendix-B-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.4">
-          <p id="appendix-B-2.4.1">Clarified that discovery results are point-in-time and not a guarantee: the subsequent token exchange is re-evaluated and may still fail.<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.4.1">Clarified requesting a JWT for use as an RFC 7523 <code>jwt-bearer</code> authorization grant: examples and <code>supported_token_types</code> use <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> as the token type value (replacing the invalid <code>urn:ietf:params:oauth:token-type:jwt-bearer</code>), a token type identifier must identify the requested token type or usage, and RFC 7523 is now normative.<a href="#appendix-B-2.4.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.5">
-          <p id="appendix-B-2.5.1">Added HTTP 429 with <code>Retry-After</code> for rate limiting.<a href="#appendix-B-2.5.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.5.1">Aligned the <code>resource</code> property with RFC 8707 (absolute URI, no fragment, array entries mapping to repeated <code>resource</code> parameters).<a href="#appendix-B-2.5.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.6">
-          <p id="appendix-B-2.6.1">Replaced the invalid <code>urn:ietf:params:oauth:token-type:jwt-bearer</code> token type identifier; examples now use <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> as the token type value to denote a JWT presented as a <code>jwt-bearer</code> authorization grant <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>, and <code>supported_token_types</code> notes that any URI may be a token type identifier per <span><a href="https://rfc-editor.org/rfc/rfc8693#section-3" class="relref">Section 3</a> of [<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>.<a href="#appendix-B-2.6.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.6.1">Consolidated empty-value handling into a single rule: optional properties with an empty string, empty array, or null value are omitted, and a present <code>scope</code> contains at least one value.<a href="#appendix-B-2.6.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.7">
-          <p id="appendix-B-2.7.1">Clarified the client identity model (client authentication parameters versus unknown parameters, public-client identification) and that the requesting client's permissions are evaluated.<a href="#appendix-B-2.7.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.7.1">Clarified the client identity model (client authentication parameters are not unknown parameters; public-client identification) and that the requesting client's permissions are evaluated.<a href="#appendix-B-2.7.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.8">
-          <p id="appendix-B-2.8.1">Registered a usage location for the <code>unsupported_token_type</code> error in the OAuth Extensions Error Registry.<a href="#appendix-B-2.8.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.8.1">Switched the caching reference to RFC 9111 (normative): no-store by default, with bounded private caching as an opt-in and no shared-cache storage.<a href="#appendix-B-2.8.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.9">
-          <p id="appendix-B-2.9.1">Aligned the <code>resource</code> property with RFC 8707 (absolute URI, no fragment, repeated parameters); made <code>scope</code> the aggregate available set per audience and resource.<a href="#appendix-B-2.9.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.9.1">Defined error behavior: registered an <code>unsupported_token_type</code> usage location in the OAuth Extensions Error Registry, mapped <code>invalid_client</code> to HTTP 401 per RFC 6749, and added HTTP 429 with <code>Retry-After</code> (RFC 6585, RFC 9110) for rate limiting.<a href="#appendix-B-2.9.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.10">
-          <p id="appendix-B-2.10.1">Softened the subject-token revocation check to where revocation status is applicable and available.<a href="#appendix-B-2.10.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.10.1">Strengthened security and privacy guidance: the subject token must not be logged, the subject-token revocation check applies where revocation status is available, and multi-tenant tenant/client information is disclosed only to authorized clients.<a href="#appendix-B-2.10.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.11">
-          <p id="appendix-B-2.11.1">Switched the caching reference to RFC 9111 (normative) and made no-store the default with bounded private caching as an opt-in.<a href="#appendix-B-2.11.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.11.1">Moved the Authorization Server Metadata parameter into the endpoint section so the endpoint URL is discovered before it is used.<a href="#appendix-B-2.11.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-B-2.12">
-          <p id="appendix-B-2.12.1">Narrowed the abstract's claim about accepted subject token types.<a href="#appendix-B-2.12.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.13">
-          <p id="appendix-B-2.13.1">Editorial: consolidated the empty-string handling into a single response-construction rule, removed repeated multi-tenant <code>audience</code> and subject-token-validation text, moved the Authorization Server Metadata section ahead of the worked example, and aligned IANA change controllers.<a href="#appendix-B-2.13.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.14">
-          <p id="appendix-B-2.14.1">Extended the empty-value rule to cover <code>null</code> and arrays containing empty strings; restored the requirement that a present <code>scope</code> contain at least one value; specified that <code>invalid_client</code> uses HTTP 401 per <span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>; and promoted Multi-Tenant Target Services to a top-level subsection of the endpoint section.<a href="#appendix-B-2.14.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.15">
-          <p id="appendix-B-2.15.1">Clarified in the example that a discovered <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> value is requested via token exchange and later presented to the Target Service as a <code>jwt-bearer</code> authorization grant.<a href="#appendix-B-2.15.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.16">
-          <p id="appendix-B-2.16.1">Editorial: relocated Authorization Server Metadata to a subsection of the endpoint section so the endpoint URL is discovered before it is used; reworded summary text from "Target Services" to "Token Exchange Targets" to avoid implying the endpoint discovers live service availability; tightened the introduction; and added client authentication to the discovery and token exchange examples consistently.<a href="#appendix-B-2.16.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.17">
-          <p id="appendix-B-2.17.1">Resolved the conflicting <code>audience</code> syntax language: the property is now defined once as the exact, opaque value the client uses in Token Exchange, with authorization-server-defined syntax unless profiled, and the duplicate description in the multi-tenant section was removed.<a href="#appendix-B-2.17.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.18">
-          <p id="appendix-B-2.18.1">Clarified the discovery model: added formal definitions of "Target Service" (the real downstream service) and "Token Exchange Target" (a pre-authorized combination of Token Exchange request parameters, not a live service) to Conventions and Definitions, renamed each response element from "target service object" to "target object", and restated the uniqueness rule in terms of a target's <code>(audience, resource set)</code> key. No wire identifiers changed.<a href="#appendix-B-2.18.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.19">
-          <p id="appendix-B-2.19.1">Pre-publication cleanup: referenced <span>[<a href="#RFC6585" class="cite xref">RFC6585</a>]</span> and <span>[<a href="#RFC9110" class="cite xref">RFC9110</a>]</span> for the HTTP 429 / <code>Retry-After</code> guidance; added a requirement that the authorization server not log the <code>subject_token</code>; kept <span>[<a href="#RFC6755" class="cite xref">RFC6755</a>]</span> informative (consistent with <span>[<a href="#RFC8693" class="cite xref">RFC8693</a>]</span>); and made the capitalization of "authorization server" consistent.<a href="#appendix-B-2.19.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-2.20">
-          <p id="appendix-B-2.20.1">Tightened the <code>supported_token_types</code> language so a token type identifier <span class="bcp14">MUST</span> identify the requested token type or token usage profile understood by the authorization server and client, and promoted <span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span> to normative, since the draft now relies on it to define the protocol-significant <code>urn:ietf:params:oauth:grant-type:jwt-bearer</code> token type value.<a href="#appendix-B-2.20.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-2.12.1">Editorial: replaced the obsolete RFC 7159 reference with RFC 8259, corrected the <code>abbrev</code> value, set IANA change controllers to IETF, added client authentication to the examples, narrowed the abstract, and made terminology and capitalization consistent.<a href="#appendix-B-2.12.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-B-3">-01<a href="#appendix-B-3" class="pilcrow">¶</a></p>
