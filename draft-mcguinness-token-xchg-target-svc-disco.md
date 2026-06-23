@@ -6,6 +6,7 @@ category:  "std"
 workgroup: "Web Authorization Protocol"
 area: "Security"
 ipr: "trust200902"
+date: 2026-06-23
 keyword:
   - "OAuth 2.0"
   - "Token Exchange"
