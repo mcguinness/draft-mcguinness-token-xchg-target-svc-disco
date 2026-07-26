@@ -103,7 +103,7 @@ Target Service
 : A downstream service that a client accesses using a token obtained through OAuth 2.0 Token Exchange {{RFC8693}}. A Target Service may be multi-tenant (see {{multi-tenant-target-services}}).
 
 Token Exchange Target
-: A combination of Token Exchange request parameters (an `audience` and, where applicable, `resource`, `scope`, `authorization_details`, and requested token type(s)) that the authorization server has authorized for a given subject token and requesting client. A Token Exchange Target is returned by the discovery endpoint as an element of the `supported_targets` array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.
+: A combination of Token Exchange request parameters (an `audience` and, where applicable, `resource`, `scope`, requested token type(s), and available authorization details types) that the authorization server has authorized for a given subject token and requesting client. A Token Exchange Target is returned by the discovery endpoint as an element of the `supported_targets` array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.
 
 # Token Exchange Target Service Discovery Endpoint
 
