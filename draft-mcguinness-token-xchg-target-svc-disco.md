@@ -6,7 +6,7 @@ category:  "std"
 workgroup: "Web Authorization Protocol"
 area: "Security"
 ipr: "trust200902"
-date: 2026-06-23
+date: 2026-07-25
 keyword:
   - "OAuth 2.0"
   - "Token Exchange"
@@ -520,6 +520,10 @@ The authors would like to thank the following individuals who contributed ideas,
 # Document History
 {:numbered="false"}
 
+-03
+
+* Added optional discovery of Rich Authorization Requests (RFC 9396) authorization details: the optional `authorization_details_types` target property and a Relationship to Rich Authorization Requests section that aligns this endpoint (dynamic, per-subject) with the Authorization Details Types Metadata endpoint (static, authorization-server-wide) of draft-zehavi-oauth-rar-metadata.
+
 -02
 
 * Added optional support for multi-tenant Target Services that share an authorization server and/or resource across tenants, via the optional `tenant`, `display_name`, and `client_id` properties and a new Multi-Tenant Target Services section; a distinct `audience` per tenant selects the tenant without changing the OAuth 2.0 Token Exchange request contract.
@@ -527,7 +531,6 @@ The authors would like to thank the following individuals who contributed ideas,
 * Defined the `audience` property as the exact, opaque value the client uses verbatim in Token Exchange, with authorization-server-defined syntax unless profiled, and specified that the `(audience, resource set)` pair uniquely identifies a target whose `scope` is the aggregate authorized for that pair.
 * Clarified requesting a JWT for use as an RFC 7523 `jwt-bearer` authorization grant: examples and `supported_token_types` use `urn:ietf:params:oauth:grant-type:jwt-bearer` as the token type value (replacing the invalid `urn:ietf:params:oauth:token-type:jwt-bearer`), a token type identifier must identify the requested token type or usage, and RFC 7523 is now normative.
 * Aligned the `resource` property with RFC 8707 (absolute URI, no fragment, array entries mapping to repeated `resource` parameters).
-* Added the optional `authorization_details_types` property and a Relationship to Rich Authorization Requests section, so discovery can report which RAR (RFC 9396) authorization details types are authorized per target, with the type schemas obtained from the Authorization Details Types Metadata endpoint of draft-zehavi-oauth-rar-metadata.
 * Consolidated empty-value handling into a single rule: optional properties with an empty string, empty array, or null value are omitted, and a present `scope` contains at least one value.
 * Clarified the client identity model (client authentication parameters are not unknown parameters; public-client identification) and that the requesting client's permissions are evaluated.
 * Switched the caching reference to RFC 9111 (normative): no-store by default, with bounded private caching as an opt-in and no shared-cache storage.
