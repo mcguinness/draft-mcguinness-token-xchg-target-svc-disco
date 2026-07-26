@@ -1357,7 +1357,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <dd class="break"></dd>
 <dt id="section-2-3.3">Token Exchange Target</dt>
         <dd style="margin-left: 1.5em" id="section-2-3.4">
-          <p id="section-2-3.4.1">A combination of Token Exchange request parameters (an <code>audience</code> and, where applicable, <code>resource</code>, <code>scope</code>, requested token type(s), and available authorization details types) that the authorization server has authorized for a given subject token and requesting client. A Token Exchange Target is returned by the discovery endpoint as an element of the <code>supported_targets</code> array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.<a href="#section-2-3.4.1" class="pilcrow">¶</a></p>
+          <p id="section-2-3.4.1">A combination of Token Exchange request parameters (an <code>audience</code> and, where applicable, <code>resource</code>, <code>scope</code>, and requested token type(s)) that the authorization server has authorized for a given subject token and requesting client. A target may also carry accompanying metadata, including the authorization details types eligible for use with it (<code>authorization_details_types</code>). A Token Exchange Target is returned by the discovery endpoint as an element of the <code>supported_targets</code> array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.<a href="#section-2-3.4.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
