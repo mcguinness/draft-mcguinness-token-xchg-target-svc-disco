@@ -5,8 +5,8 @@
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
 Intended status: Standards Track                              A. Parecki
-Expires: 25 December 2026                                           Okta
-                                                            23 June 2026
+Expires: 26 January 2027                                            Okta
+                                                            25 July 2026
 
 
            OAuth 2.0 Token Exchange Target Service Discovery
@@ -59,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 December 2026.
+   This Internet-Draft will expire on 26 January 2027.
 
 Copyright Notice
 
@@ -1093,6 +1093,15 @@ Acknowledgments
 
 Document History
 
+   -03
+
+   *  Added optional discovery of Rich Authorization Requests (RFC 9396)
+      authorization details: the optional authorization_details_types
+      target property and a Relationship to Rich Authorization Requests
+      section that aligns this endpoint (dynamic, per-subject) with the
+      Authorization Details Types Metadata endpoint (static,
+      authorization-server-wide) of draft-zehavi-oauth-rar-metadata.
+
    -02
 
    *  Added optional support for multi-tenant Target Services that share
@@ -1124,13 +1133,6 @@ Document History
 
    *  Aligned the resource property with RFC 8707 (absolute URI, no
       fragment, array entries mapping to repeated resource parameters).
-
-   *  Added the optional authorization_details_types property and a
-      Relationship to Rich Authorization Requests section, so discovery
-      can report which RAR (RFC 9396) authorization details types are
-      authorized per target, with the type schemas obtained from the
-      Authorization Details Types Metadata endpoint of draft-zehavi-
-      oauth-rar-metadata.
 
    *  Consolidated empty-value handling into a single rule: optional
       properties with an empty string, empty array, or null value are
