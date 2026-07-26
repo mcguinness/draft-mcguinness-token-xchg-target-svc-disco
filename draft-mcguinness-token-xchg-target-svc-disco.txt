@@ -5,8 +5,8 @@
 Web Authorization Protocol                                 K. McGuinness
 Internet-Draft                                               Independent
 Intended status: Standards Track                              A. Parecki
-Expires: 25 December 2026                                           Okta
-                                                            23 June 2026
+Expires: 26 January 2027                                            Okta
+                                                            25 July 2026
 
 
            OAuth 2.0 Token Exchange Target Service Discovery
@@ -16,12 +16,13 @@ Abstract
 
    This specification defines a method for OAuth 2.0 clients to discover
    the set of available Token Exchange Targets (such as audiences,
-   resources, scopes, and token types) for a given subject token when
-   performing OAuth 2.0 Token Exchange.  The discovery endpoint accepts
-   a subject token of any type the authorization server supports,
-   identified by a token type URI, and returns values that are valid
-   inputs to subsequent Token Exchange requests, supporting advanced use
-   cases such as identity chaining and cross-domain delegation.
+   resources, scopes, token types, and authorization details types) for
+   a given subject token when performing OAuth 2.0 Token Exchange.  The
+   discovery endpoint accepts a subject token of any type the
+   authorization server supports, identified by a token type URI, and
+   returns values that are valid inputs to subsequent Token Exchange
+   requests, supporting advanced use cases such as identity chaining and
+   cross-domain delegation.
 
 About This Document
 
@@ -58,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 December 2026.
+   This Internet-Draft will expire on 26 January 2027.
 
 Copyright Notice
 
@@ -88,8 +89,9 @@ Table of Contents
        3.3.1.  Successful Response
        3.3.2.  Response Example
      3.4.  Multi-Tenant Target Services
-     3.5.  Error Response
-       3.5.1.  Error Response Example
+     3.5.  Relationship to Rich Authorization Requests
+     3.6.  Error Response
+       3.6.1.  Error Response Example
    4.  Example
      4.1.  Step 1: Discover Target Services
        4.1.1.  Discovery Request
@@ -141,10 +143,11 @@ Table of Contents
    This specification defines the OAuth 2.0 Token Exchange Target
    Service Discovery Endpoint, a standardized mechanism that enables
    clients to dynamically discover the set of available Token Exchange
-   Targets (such as audiences, resources, scopes, and token types) for a
-   given subject token.  The authorization server evaluates both the
-   subject token and the client's permissions and returns only the
-   values the client is authorized to request.
+   Targets (such as audiences, resources, scopes, token types, and
+   authorization details types) for a given subject token.  The
+   authorization server evaluates both the subject token and the
+   client's permissions and returns only the values the client is
+   authorized to request.
 
    This extension is especially valuable in scenarios requiring identity
    chaining and cross-domain authorization:
@@ -218,18 +221,21 @@ Table of Contents
       parameters (an audience and, where applicable, resource, scope,
       and requested token type(s)) that the authorization server has
       authorized for a given subject token and requesting client.  A
-      Token Exchange Target is returned by the discovery endpoint as an
-      element of the supported_targets array; it identifies how a client
-      may obtain a token for a Target Service and does not assert that
-      the service is reachable or operational.
+      target may also carry accompanying metadata, including the
+      authorization details types eligible for use with it
+      (authorization_details_types).  A Token Exchange Target is
+      returned by the discovery endpoint as an element of the
+      supported_targets array; it identifies how a client may obtain a
+      token for a Target Service and does not assert that the service is
+      reachable or operational.
 
 3.  Token Exchange Target Service Discovery Endpoint
 
    This specification defines a new endpoint for OAuth 2.0 authorization
    servers that enables clients to discover the set of available Token
-   Exchange Targets (such as audiences, resources, scopes, and token
-   types) for a given subject token when performing OAuth 2.0 Token
-   Exchange [RFC8693].
+   Exchange Targets (such as audiences, resources, scopes, token types,
+   and authorization details types) for a given subject token when
+   performing OAuth 2.0 Token Exchange [RFC8693].
 
    The endpoint is identified by the authorization server metadata
    parameter token_exchange_target_service_discovery_endpoint, as
@@ -270,7 +276,7 @@ Table of Contents
    MUST be UTF-8 as specified in Appendix B of [RFC6749].  If a
    parameter is included more than once in the request, the
    authorization server MUST return an error response with the error
-   code invalid_request as described in Section 3.5.
+   code invalid_request as described in Section 3.6.
 
 3.2.1.  Request Parameters
 
@@ -302,7 +308,7 @@ Table of Contents
    authentication is required by the authorization server but not
    provided in the request, the authorization server MUST return an
    error response with the error code invalid_client as described in
-   Section 3.5.  A public client that does not authenticate MAY identify
+   Section 3.6.  A public client that does not authenticate MAY identify
    itself with the client_id parameter; the authorization server
    determines the trust it places in such an unauthenticated identifier,
    and MAY base its results on the subject token alone when no client
@@ -317,13 +323,13 @@ Table of Contents
        subject_token_type parameters are not empty strings.  If either
        parameter is an empty string, the authorization server MUST
        return an error response with the error code invalid_request as
-       described in Section 3.5.
+       described in Section 3.6.
 
    2.  The authorization server MUST validate that the
        subject_token_type parameter is a valid URI.  If the format is
        invalid (e.g., not a valid absolute URI or URN), the
        authorization server MUST return an error response with the error
-       code invalid_request as described in Section 3.5.
+       code invalid_request as described in Section 3.6.
 
    3.  The authorization server MUST determine whether it supports the
        indicated token type.  This determination is an implementation
@@ -332,7 +338,7 @@ Table of Contents
        or any combination thereof.  If the subject_token_type is not
        supported by the authorization server for the given context, the
        authorization server MUST return an error response with the error
-       code unsupported_token_type as described in Section 3.5.
+       code unsupported_token_type as described in Section 3.6.
 
    4.  The authorization server MUST validate the subject_token
        according to the rules for the indicated token type.  The
@@ -357,7 +363,7 @@ Table of Contents
    5.  If the subject_token is invalid for any reason (e.g., malformed,
        expired, revoked, or does not match the subject_token_type), the
        authorization server MUST return an error response with the error
-       code invalid_request as described in Section 3.5.
+       code invalid_request as described in Section 3.6.
 
    6.  The authorization server MUST evaluate the subject_token in
        conjunction with the requesting client's permissions (the
@@ -459,6 +465,31 @@ client_id=client-A
       authorized in a subsequent token exchange request per Section 2.1
       of [RFC8693].
 
+   authorization_details_types  OPTIONAL.  An array of strings, each a
+      Rich Authorization Requests (RAR) [RFC9396] authorization_details
+      type identifier that is eligible for use with this target in a
+      subsequent token exchange.  The authorization_details request
+      parameter [RFC9396] may be used in a token exchange request in
+      addition to, or instead of, scope.  Each identifier corresponds to
+      an authorization details type supported by the authorization
+      server; this specification does not define those types or their
+      schemas.  The schema and examples for a type are obtained from the
+      authorization server's Authorization Details Types Metadata
+      endpoint [I-D.zehavi-oauth-rar-metadata], if published (see
+      Section 3.5).  Listing a type indicates only that the type is
+      available for this target; it does not authorize every schema-
+      valid authorization_details object of that type, nor any
+      particular combination of objects.  The authorization server
+      evaluates the specific authorization_details content (which may
+      include fields such as actions, locations, accounts, or amounts)
+      when the token exchange is performed.  The fields permitted or
+      required in an authorization_details object are governed by the
+      type definition and its schema per [RFC9396]; the target's
+      resource and audience do not remove or substitute for any field
+      the type requires (for example, locations).  If omitted, this
+      specification makes no assertion about which authorization details
+      types are available for the target.
+
    supported_token_types  OPTIONAL.  An array of strings indicating the
       token types that may be requested for this target in a subsequent
       token exchange operation.  Each string MUST be a valid absolute
@@ -534,6 +565,7 @@ client_id=client-A
            "https://api.example.com/inventory"
          ],
          "scope": "orders.read inventory.read",
+         "authorization_details_types": ["order_management"],
          "supported_token_types": [
            "urn:ietf:params:oauth:token-type:access_token"
          ]
@@ -642,7 +674,48 @@ client_id=client-A
    corresponding client_id, if present and where client authentication
    applies.
 
-3.5.  Error Response
+3.5.  Relationship to Rich Authorization Requests
+
+   Rich Authorization Requests [RFC9396] let a client request fine-
+   grained authorization through the authorization_details parameter, in
+   addition to or instead of scope.  Because a token exchange is a token
+   endpoint request, authorization_details may accompany it, and the
+   authorization_details_types property lets discovery report which RAR
+   types are eligible for use with a target.
+
+   This specification and the Authorization Details Types Metadata
+   defined in [I-D.zehavi-oauth-rar-metadata] address complementary
+   layers and do not overlap:
+
+   *  The Authorization Details Types Metadata endpoint is static and
+      authorization-server-wide: it describes the authorization_details
+      types an authorization server supports and their JSON Schemas.
+
+   *  This discovery endpoint is dynamic and per-subject: for a given
+      subject token and client, it reports which of those types are
+      eligible for a specific target, via the
+      authorization_details_types property.  Whether a given
+      authorization_details object is granted still depends on its
+      contents, which the authorization server evaluates when the token
+      exchange is performed.
+
+   A client uses this endpoint to learn which authorization details
+   types it may use for a target, and the Authorization Details Types
+   Metadata endpoint to learn how to construct them.  This layering
+   mirrors the relationship between scopes_supported and scope: the
+   metadata endpoint is the static catalog of what the authorization
+   server supports, while this endpoint reports the subset eligible for
+   a specific target.  It is also proactive: reporting the eligible
+   types before the token exchange complements the reactive remediation
+   that [I-D.zehavi-oauth-rar-metadata] defines for signaling, after a
+   request fails, what authorization was missing.  An authorization
+   server MAY publish both the
+   token_exchange_target_service_discovery_endpoint and the
+   Authorization Details Types Metadata endpoint
+   (authorization_details_types_metadata_endpoint) in its metadata
+   [RFC8414].
+
+3.6.  Error Response
 
    If the request failed, the authorization server returns an error
    response as defined in Section 5.2 of [RFC6749].  The response MUST
@@ -665,7 +738,7 @@ client_id=client-A
    it MAY respond with HTTP 429 (Too Many Requests) [RFC6585] and SHOULD
    include a Retry-After header field [RFC9110].
 
-3.5.1.  Error Response Example
+3.6.1.  Error Response Example
 
    The following is an example of an error response:
 
@@ -802,7 +875,7 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
    the client authentication methods defined in Section 2.3 of
    [RFC6749].  If client authentication is required but not provided,
    the authorization server MUST return an error response with the error
-   code invalid_client as described in Section 3.5.
+   code invalid_client as described in Section 3.6.
 
 5.3.  Authorization Policy Enforcement
 
@@ -977,6 +1050,11 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
               DOI 10.17487/RFC9111, June 2022,
               <https://www.rfc-editor.org/info/rfc9111>.
 
+   [RFC9396]  Lodderstedt, T., Richer, J., and B. Campbell, "OAuth 2.0
+              Rich Authorization Requests", RFC 9396,
+              DOI 10.17487/RFC9396, May 2023,
+              <https://www.rfc-editor.org/info/rfc9396>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -1001,13 +1079,20 @@ grant_type=urn:ietf:params:oauth:grant-type:token-exchange
               DOI 10.17487/RFC9110, June 2022,
               <https://www.rfc-editor.org/info/rfc9110>.
 
+   [I-D.zehavi-oauth-rar-metadata]
+              Zehavi, Y., "OAuth 2.0 RAR Metadata and Error
+              Remediation", Work in Progress, Internet-Draft, draft-
+              zehavi-oauth-rar-metadata-05, 4 July 2026,
+              <https://datatracker.ietf.org/doc/html/draft-zehavi-oauth-
+              rar-metadata-05>.
+
    [I-D.ietf-oauth-identity-chaining]
               Schwenkschuster, A., Kasselman, P., Burgin, K., Jenkins,
               M. J., Campbell, B., and A. Parecki, "OAuth Identity and
               Authorization Chaining Across Domains", Work in Progress,
-              Internet-Draft, draft-ietf-oauth-identity-chaining-14, 2
-              June 2026, <https://datatracker.ietf.org/doc/html/draft-
-              ietf-oauth-identity-chaining-14>.
+              Internet-Draft, draft-ietf-oauth-identity-chaining-17, 19
+              July 2026, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-oauth-identity-chaining-17>.
 
    [I-D.oauth-identity-assertion-authz-grant]
               Parecki, A., McGuinness, K., and B. Campbell, "OAuth 2.0
@@ -1022,6 +1107,18 @@ Acknowledgments
    specification: Max Gerber
 
 Document History
+
+   -03
+
+   *  Added optional discovery of Rich Authorization Requests (RFC 9396)
+      authorization details: the optional authorization_details_types
+      target property, which lists the authorization details types
+      eligible for a target (listing a type does not authorize a
+      specific authorization_details object), and a Relationship to Rich
+      Authorization Requests section that aligns this endpoint (dynamic,
+      per-subject) with the Authorization Details Types Metadata
+      endpoint (static, authorization-server-wide) of draft-zehavi-
+      oauth-rar-metadata.  RFC 9396 is referenced normatively.
 
    -02
 
