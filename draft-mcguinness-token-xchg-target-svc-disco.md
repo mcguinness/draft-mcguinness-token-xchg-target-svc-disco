@@ -41,12 +41,12 @@ normative:
   RFC8414:
   RFC8693:
   RFC9111:
+  RFC9396:
 
 informative:
   RFC6585:
   RFC6755:
   RFC9110:
-  RFC9396:
   I-D.zehavi-oauth-rar-metadata:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
@@ -211,7 +211,7 @@ scope
 : OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. If present, the value MUST contain at least one scope value. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
 authorization_details_types
-: OPTIONAL. An array of strings, each a Rich Authorization Requests (RAR) {{RFC9396}} `authorization_details` type identifier that the client is authorized to request for this target in a subsequent token exchange. The `authorization_details` request parameter {{RFC9396}} may be used in a token exchange request in addition to, or instead of, `scope`. Each identifier corresponds to an authorization details type supported by the authorization server; this specification does not define those types or their schemas. The schema and examples for a type are obtained from the authorization server's Authorization Details Types Metadata endpoint {{I-D.zehavi-oauth-rar-metadata}}, if published (see {{rich-authorization-requests}}). When the client constructs `authorization_details` objects of these types for the target, the target's `audience` and `resource` already establish the target location, so the client need not repeat that location in the RAR object's `locations` field. If omitted, this specification makes no assertion about which authorization details types are available for the target.
+: OPTIONAL. An array of strings, each a Rich Authorization Requests (RAR) {{RFC9396}} `authorization_details` type identifier that is eligible for use with this target in a subsequent token exchange. The `authorization_details` request parameter {{RFC9396}} may be used in a token exchange request in addition to, or instead of, `scope`. Each identifier corresponds to an authorization details type supported by the authorization server; this specification does not define those types or their schemas. The schema and examples for a type are obtained from the authorization server's Authorization Details Types Metadata endpoint {{I-D.zehavi-oauth-rar-metadata}}, if published (see {{rich-authorization-requests}}). Listing a type indicates only that the type is available for this target; it does not authorize every schema-valid `authorization_details` object of that type, nor any particular combination of objects. The authorization server evaluates the specific `authorization_details` content (which may include fields such as actions, locations, accounts, or amounts) when the token exchange is performed. The fields permitted or required in an `authorization_details` object are governed by the type definition and its schema per {{RFC9396}}; the target's `resource` and `audience` do not remove or substitute for any field the type requires (for example, `locations`). If omitted, this specification makes no assertion about which authorization details types are available for the target.
 
 supported_token_types
 : OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, when that URI identifies the requested token type or token usage profile understood by the authorization server and client. For example, `urn:ietf:params:oauth:grant-type:jwt-bearer` identifies a JWT intended to be presented as a JWT bearer authorization grant as defined by {{RFC7523}}; this specification intentionally permits the RFC 7523 grant-type URI to be used in this role, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not convey. If omitted, the client may use any token type supported by the authorization server.
@@ -314,14 +314,14 @@ The client presents the two tenants to the end user using the `display_name` val
 
 ## Relationship to Rich Authorization Requests {#rich-authorization-requests}
 
-Rich Authorization Requests {{RFC9396}} let a client request fine-grained authorization through the `authorization_details` parameter, in addition to or instead of `scope`. Because a token exchange is a token endpoint request, `authorization_details` may accompany it, and the `authorization_details_types` property lets discovery report which RAR types are authorized for a target.
+Rich Authorization Requests {{RFC9396}} let a client request fine-grained authorization through the `authorization_details` parameter, in addition to or instead of `scope`. Because a token exchange is a token endpoint request, `authorization_details` may accompany it, and the `authorization_details_types` property lets discovery report which RAR types are eligible for use with a target.
 
 This specification and the Authorization Details Types Metadata defined in {{I-D.zehavi-oauth-rar-metadata}} address complementary layers and do not overlap:
 
 * The Authorization Details Types Metadata endpoint is static and authorization-server-wide: it describes the `authorization_details` types an authorization server supports and their JSON Schemas.
-* This discovery endpoint is dynamic and per-subject: for a given subject token and client, it reports which of those types are authorized for a specific target, via the `authorization_details_types` property.
+* This discovery endpoint is dynamic and per-subject: for a given subject token and client, it reports which of those types are eligible for a specific target, via the `authorization_details_types` property. Whether a given `authorization_details` object is granted still depends on its contents, which the authorization server evaluates when the token exchange is performed.
 
-A client uses this endpoint to learn which authorization details it may request for a target, and the Authorization Details Types Metadata endpoint to learn how to construct them. This layering mirrors the relationship between `scopes_supported` and `scope`: the metadata endpoint is the static catalog of what the authorization server supports, while this endpoint reports the subset authorized for a specific target. It is also proactive: reporting the authorized types before the token exchange complements the reactive remediation that {{I-D.zehavi-oauth-rar-metadata}} defines for signaling, after a request fails, what authorization was missing. An authorization server MAY publish both the `token_exchange_target_service_discovery_endpoint` and the Authorization Details Types Metadata endpoint (`authorization_details_types_metadata_endpoint`) in its metadata {{RFC8414}}.
+A client uses this endpoint to learn which authorization details types it may use for a target, and the Authorization Details Types Metadata endpoint to learn how to construct them. This layering mirrors the relationship between `scopes_supported` and `scope`: the metadata endpoint is the static catalog of what the authorization server supports, while this endpoint reports the subset eligible for a specific target. It is also proactive: reporting the eligible types before the token exchange complements the reactive remediation that {{I-D.zehavi-oauth-rar-metadata}} defines for signaling, after a request fails, what authorization was missing. An authorization server MAY publish both the `token_exchange_target_service_discovery_endpoint` and the Authorization Details Types Metadata endpoint (`authorization_details_types_metadata_endpoint`) in its metadata {{RFC8414}}.
 
 ## Error Response {#error-response}
 
@@ -522,7 +522,7 @@ The authors would like to thank the following individuals who contributed ideas,
 
 -03
 
-* Added optional discovery of Rich Authorization Requests (RFC 9396) authorization details: the optional `authorization_details_types` target property and a Relationship to Rich Authorization Requests section that aligns this endpoint (dynamic, per-subject) with the Authorization Details Types Metadata endpoint (static, authorization-server-wide) of draft-zehavi-oauth-rar-metadata.
+* Added optional discovery of Rich Authorization Requests (RFC 9396) authorization details: the optional `authorization_details_types` target property, which lists the authorization details types eligible for a target (listing a type does not authorize a specific `authorization_details` object), and a Relationship to Rich Authorization Requests section that aligns this endpoint (dynamic, per-subject) with the Authorization Details Types Metadata endpoint (static, authorization-server-wide) of draft-zehavi-oauth-rar-metadata. RFC 9396 is referenced normatively.
 
 -02
 
