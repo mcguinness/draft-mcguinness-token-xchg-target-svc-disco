@@ -464,8 +464,8 @@ client_id=client-A
       of [RFC8693].
 
    authorization_details_types  OPTIONAL.  An array of strings, each a
-      Rich Authorization Requests [RFC9396] authorization_details type
-      identifier that the client is authorized to request for this
+      Rich Authorization Requests (RAR) [RFC9396] authorization_details
+      type identifier that the client is authorized to request for this
       target in a subsequent token exchange.  The authorization_details
       request parameter [RFC9396] may be used in a token exchange
       request in addition to, or instead of, scope.  Each identifier
@@ -668,12 +668,12 @@ client_id=client-A
 
 3.5.  Relationship to Rich Authorization Requests
 
-   Rich Authorization Requests (RAR) [RFC9396] let a client request
-   fine-grained authorization through the authorization_details
-   parameter, in addition to or instead of scope.  Because a token
-   exchange is a token endpoint request, authorization_details may
-   accompany it, and the authorization_details_types property lets
-   discovery report which RAR types are authorized for a target.
+   Rich Authorization Requests [RFC9396] let a client request fine-
+   grained authorization through the authorization_details parameter, in
+   addition to or instead of scope.  Because a token exchange is a token
+   endpoint request, authorization_details may accompany it, and the
+   authorization_details_types property lets discovery report which RAR
+   types are authorized for a target.
 
    This specification and the Authorization Details Types Metadata
    defined in [I-D.zehavi-oauth-rar-metadata] address complementary
@@ -690,15 +690,18 @@ client_id=client-A
 
    A client uses this endpoint to learn which authorization details it
    may request for a target, and the Authorization Details Types
-   Metadata endpoint to learn how to construct them.  This relationship
-   mirrors the one between scope and scopes_supported.  It is also
-   proactive: reporting the authorized types before the token exchange
-   complements the reactive remediation that
-   [I-D.zehavi-oauth-rar-metadata] defines for signaling, after a
-   request fails, what authorization was missing.  An authorization
-   server MAY publish both the
+   Metadata endpoint to learn how to construct them.  This layering
+   mirrors the relationship between scopes_supported and scope: the
+   metadata endpoint is the static catalog of what the authorization
+   server supports, while this endpoint reports the subset authorized
+   for a specific target.  It is also proactive: reporting the
+   authorized types before the token exchange complements the reactive
+   remediation that [I-D.zehavi-oauth-rar-metadata] defines for
+   signaling, after a request fails, what authorization was missing.  An
+   authorization server MAY publish both the
    token_exchange_target_service_discovery_endpoint and the
-   Authorization Details Types Metadata endpoint in its metadata
+   Authorization Details Types Metadata endpoint
+   (authorization_details_types_metadata_endpoint) in its metadata
    [RFC8414].
 
 3.6.  Error Response
