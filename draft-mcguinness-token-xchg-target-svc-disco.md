@@ -6,7 +6,7 @@ category:  "std"
 workgroup: "Web Authorization Protocol"
 area: "Security"
 ipr: "trust200902"
-date: 2026-06-23
+date: 2026-07-25
 keyword:
   - "OAuth 2.0"
   - "Token Exchange"
@@ -41,11 +41,13 @@ normative:
   RFC8414:
   RFC8693:
   RFC9111:
+  RFC9396:
 
 informative:
   RFC6585:
   RFC6755:
   RFC9110:
+  I-D.zehavi-oauth-rar-metadata:
   I-D.ietf-oauth-identity-chaining:
   I-D.oauth-identity-assertion-authz-grant:
     title: OAuth 2.0 Identity Assertion JWT Authorization Grant
@@ -61,7 +63,7 @@ informative:
 
 --- abstract
 
-This specification defines a method for OAuth 2.0 clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts a subject token of any type the authorization server supports, identified by a token type URI, and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
+This specification defines a method for OAuth 2.0 clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, token types, and authorization details types) for a given subject token when performing OAuth 2.0 Token Exchange. The discovery endpoint accepts a subject token of any type the authorization server supports, identified by a token type URI, and returns values that are valid inputs to subsequent Token Exchange requests, supporting advanced use cases such as identity chaining and cross-domain delegation.
 
 --- middle
 
@@ -71,7 +73,7 @@ OAuth 2.0 Token Exchange {{RFC8693}} enables a client to present a token issued 
 
 Authorization Servers may be capable of issuing tokens to multiple services for a given subject token and client, but the client must already know which values it may request. Today, this knowledge is typically provided through static configuration, proprietary APIs, or informal documentation, leading to brittle integrations and unnecessary Token Exchange failures, particularly when subjects are authorized to access only a subset of available services.
 
-This specification defines the OAuth 2.0 Token Exchange Target Service Discovery Endpoint, a standardized mechanism that enables clients to dynamically discover the set of available Token Exchange Targets (such as audiences, resources, scopes, and token types) for a given subject token. The authorization server evaluates both the subject token and the client's permissions and returns only the values the client is authorized to request.
+This specification defines the OAuth 2.0 Token Exchange Target Service Discovery Endpoint, a standardized mechanism that enables clients to dynamically discover the set of available Token Exchange Targets (such as audiences, resources, scopes, token types, and authorization details types) for a given subject token. The authorization server evaluates both the subject token and the client's permissions and returns only the values the client is authorized to request.
 
 This extension is especially valuable in scenarios requiring identity chaining and cross-domain authorization:
 
@@ -101,11 +103,11 @@ Target Service
 : A downstream service that a client accesses using a token obtained through OAuth 2.0 Token Exchange {{RFC8693}}. A Target Service may be multi-tenant (see {{multi-tenant-target-services}}).
 
 Token Exchange Target
-: A combination of Token Exchange request parameters (an `audience` and, where applicable, `resource`, `scope`, and requested token type(s)) that the authorization server has authorized for a given subject token and requesting client. A Token Exchange Target is returned by the discovery endpoint as an element of the `supported_targets` array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.
+: A combination of Token Exchange request parameters (an `audience` and, where applicable, `resource`, `scope`, and requested token type(s)) that the authorization server has authorized for a given subject token and requesting client. A target may also carry accompanying metadata, including the authorization details types eligible for use with it (`authorization_details_types`). A Token Exchange Target is returned by the discovery endpoint as an element of the `supported_targets` array; it identifies how a client may obtain a token for a Target Service and does not assert that the service is reachable or operational.
 
 # Token Exchange Target Service Discovery Endpoint
 
-This specification defines a new endpoint for OAuth 2.0 authorization servers that enables clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, and token types) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
+This specification defines a new endpoint for OAuth 2.0 authorization servers that enables clients to discover the set of available Token Exchange Targets (such as audiences, resources, scopes, token types, and authorization details types) for a given subject token when performing OAuth 2.0 Token Exchange {{RFC8693}}.
 
 The endpoint is identified by the authorization server metadata parameter `token_exchange_target_service_discovery_endpoint`, as defined in {{authorization-server-metadata}}.
 
@@ -208,6 +210,9 @@ resource
 scope
 : OPTIONAL. A string value containing a space-delimited list of OAuth 2.0 scope values, as defined in {{Section 3.3 of RFC6749}}, that are available for this target. Each scope value MUST conform to the scope syntax defined in {{Section 3.3 of RFC6749}}. If present, the value MUST contain at least one scope value. The authorization server determines which scopes to return based on its authorization policy evaluation, which is implementation-specific. The scopes returned SHOULD be those that would be authorized in a subsequent token exchange request per {{Section 2.1 of RFC8693}}.
 
+authorization_details_types
+: OPTIONAL. An array of strings, each a Rich Authorization Requests (RAR) {{RFC9396}} `authorization_details` type identifier that is eligible for use with this target in a subsequent token exchange. The `authorization_details` request parameter {{RFC9396}} may be used in a token exchange request in addition to, or instead of, `scope`. Each identifier corresponds to an authorization details type supported by the authorization server; this specification does not define those types or their schemas. The schema and examples for a type are obtained from the authorization server's Authorization Details Types Metadata endpoint {{I-D.zehavi-oauth-rar-metadata}}, if published (see {{rich-authorization-requests}}). Listing a type indicates only that the type is available for this target; it does not authorize every schema-valid `authorization_details` object of that type, nor any particular combination of objects. The authorization server evaluates the specific `authorization_details` content (which may include fields such as actions, locations, accounts, or amounts) when the token exchange is performed. The fields permitted or required in an `authorization_details` object are governed by the type definition and its schema per {{RFC9396}}; the target's `resource` and `audience` do not remove or substitute for any field the type requires (for example, `locations`). If omitted, this specification makes no assertion about which authorization details types are available for the target.
+
 supported_token_types
 : OPTIONAL. An array of strings indicating the token types that may be requested for this target in a subsequent token exchange operation. Each string MUST be a valid absolute URI. A token type identifier MAY be any URI, as permitted by {{Section 3 of RFC8693}}, when that URI identifies the requested token type or token usage profile understood by the authorization server and client. For example, `urn:ietf:params:oauth:grant-type:jwt-bearer` identifies a JWT intended to be presented as a JWT bearer authorization grant as defined by {{RFC7523}}; this specification intentionally permits the RFC 7523 grant-type URI to be used in this role, which the generic `urn:ietf:params:oauth:token-type:jwt` identifier does not convey. If omitted, the client may use any token type supported by the authorization server.
 
@@ -241,6 +246,7 @@ The following is an example of a successful discovery response:
             "https://api.example.com/inventory"
           ],
           "scope": "orders.read inventory.read",
+          "authorization_details_types": ["order_management"],
           "supported_token_types": [
             "urn:ietf:params:oauth:token-type:access_token"
           ]
@@ -305,6 +311,17 @@ The following is a non-normative example of a discovery response for a multi-ten
     }
 
 The client presents the two tenants to the end user using the `display_name` values (for example, "SaaS Example Dev" and "SaaS Example Staging"). Once the user selects a tenant, the client performs the token exchange using the corresponding `audience` value (for example, `urn:saas:tenant:dev`). When the resulting issued token is later presented at the Target Service, the client uses the corresponding `client_id`, if present and where client authentication applies.
+
+## Relationship to Rich Authorization Requests {#rich-authorization-requests}
+
+Rich Authorization Requests {{RFC9396}} let a client request fine-grained authorization through the `authorization_details` parameter, in addition to or instead of `scope`. Because a token exchange is a token endpoint request, `authorization_details` may accompany it, and the `authorization_details_types` property lets discovery report which RAR types are eligible for use with a target.
+
+This specification and the Authorization Details Types Metadata defined in {{I-D.zehavi-oauth-rar-metadata}} address complementary layers and do not overlap:
+
+* The Authorization Details Types Metadata endpoint is static and authorization-server-wide: it describes the `authorization_details` types an authorization server supports and their JSON Schemas.
+* This discovery endpoint is dynamic and per-subject: for a given subject token and client, it reports which of those types are eligible for a specific target, via the `authorization_details_types` property. Whether a given `authorization_details` object is granted still depends on its contents, which the authorization server evaluates when the token exchange is performed.
+
+A client uses this endpoint to learn which authorization details types it may use for a target, and the Authorization Details Types Metadata endpoint to learn how to construct them. This layering mirrors the relationship between `scopes_supported` and `scope`: the metadata endpoint is the static catalog of what the authorization server supports, while this endpoint reports the subset eligible for a specific target. It is also proactive: reporting the eligible types before the token exchange complements the reactive remediation that {{I-D.zehavi-oauth-rar-metadata}} defines for signaling, after a request fails, what authorization was missing. An authorization server MAY publish both the `token_exchange_target_service_discovery_endpoint` and the Authorization Details Types Metadata endpoint (`authorization_details_types_metadata_endpoint`) in its metadata {{RFC8414}}.
 
 ## Error Response {#error-response}
 
@@ -502,6 +519,10 @@ The authors would like to thank the following individuals who contributed ideas,
 
 # Document History
 {:numbered="false"}
+
+-03
+
+* Added optional discovery of Rich Authorization Requests (RFC 9396) authorization details: the optional `authorization_details_types` target property, which lists the authorization details types eligible for a target (listing a type does not authorize a specific `authorization_details` object), and a Relationship to Rich Authorization Requests section that aligns this endpoint (dynamic, per-subject) with the Authorization Details Types Metadata endpoint (static, authorization-server-wide) of draft-zehavi-oauth-rar-metadata. RFC 9396 is referenced normatively.
 
 -02
 
